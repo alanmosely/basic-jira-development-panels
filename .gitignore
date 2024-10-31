@@ -1,0 +1,18 @@
+.classpath
+.project
+.settings
+.factorypath
+.vscode
+build
+target
+bin
+
+# ignore all Idea files except for common codestyle settings
+*.iml
+.idea/*
+!.idea/checkstyle-idea.xml
+!.idea/google-java-format.xml
+
+work
+atlassian-ide-plugin.xml
+.work/

@@ -1,0 +1,20 @@
+#if ($pullRequests && $pullRequests.size() > 0)
+    <table class="aui">
+        <thead>
+            <tr>
+                <th>Pull Request</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            #foreach ($pullRequest in $pullRequests)
+                <tr>
+                    <td><a href="$pullRequest.url" target="_blank">$pullRequest.name</a></td>
+                    <td>$pullRequest.status</td>
+                </tr>
+            #end
+        </tbody>
+    </table>
+#else
+    <p>No pull requests associated with this issue.</p>
+#end
