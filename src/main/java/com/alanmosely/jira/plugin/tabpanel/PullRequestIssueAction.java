@@ -1,15 +1,12 @@
 package com.alanmosely.jira.plugin.tabpanel;
 
-import com.alanmosely.jira.plugin.api.PullRequestModel;
-import com.atlassian.jira.plugin.issuetabpanel.AbstractIssueAction;
-import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
-import com.atlassian.plugin.webresource.WebResourceManager;
-import com.atlassian.plugin.PluginAccessor;
-import com.atlassian.plugin.Plugin;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import com.alanmosely.jira.plugin.api.PullRequestModel;
+import com.atlassian.jira.plugin.issuetabpanel.AbstractIssueAction;
+import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
 
 public class PullRequestIssueAction extends AbstractIssueAction {
 
@@ -20,8 +17,9 @@ public class PullRequestIssueAction extends AbstractIssueAction {
         this.pullRequests = pullRequests;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void populateVelocityParams(Map params) {
+    public void populateVelocityParams(@SuppressWarnings("rawtypes") Map params) {
         params.put("pullRequests", pullRequests);
     }
 

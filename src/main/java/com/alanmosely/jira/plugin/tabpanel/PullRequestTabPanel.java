@@ -1,18 +1,17 @@
 package com.alanmosely.jira.plugin.tabpanel;
 
-import com.alanmosely.jira.plugin.impl.PullRequestService;
-import com.alanmosely.jira.plugin.api.PullRequestModel;
-import com.atlassian.jira.plugin.issuetabpanel.AbstractIssueTabPanel;
-import com.atlassian.jira.plugin.issuetabpanel.IssueAction;
-import com.atlassian.jira.plugin.issuetabpanel.ShowPanelReply;
-import com.atlassian.jira.user.ApplicationUser;
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.alanmosely.jira.plugin.api.PullRequestModel;
+import com.alanmosely.jira.plugin.impl.PullRequestService;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.plugin.issuetabpanel.AbstractIssueTabPanel;
+import com.atlassian.jira.plugin.issuetabpanel.IssueAction;
+import com.atlassian.jira.user.ApplicationUser;
 
 @Named
 public class PullRequestTabPanel extends AbstractIssueTabPanel {

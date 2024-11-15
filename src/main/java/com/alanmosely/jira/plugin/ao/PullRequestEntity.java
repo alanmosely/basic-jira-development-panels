@@ -16,4 +16,13 @@ public interface PullRequestEntity extends Entity {
 
     String getStatus();
     void setStatus(String status);
+   
+    String getRepoName();
+    void setRepoName(String repoName);
+    
+    String getRepoUrl();
+    void setRepoUrl(String repoUrl);
+ 
+    String getBranchName();
+    void setBranchName(String branchName);
 }

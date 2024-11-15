@@ -1,16 +1,20 @@
 #if ($pullRequests && $pullRequests.size() > 0)
-    <table class="aui">
+    <table class="aui aui-table-list">
         <thead>
             <tr>
-                <th>Pull Request</th>
-                <th>Status</th>
+                <th id="pr">Pull Request</th>
+                <th id="repo">Repository</th>
+                <th id="branch">Branch</th>
+                <th id="status">Status</th>
             </tr>
         </thead>
         <tbody>
             #foreach ($pullRequest in $pullRequests)
                 <tr>
-                    <td><a href="$pullRequest.url" target="_blank">$pullRequest.name</a></td>
-                    <td>$pullRequest.status</td>
+                    <td headers="pr"><a href="$pullRequest.url" target="_blank">$pullRequest.name</a></td>
+                    <td headers="repo"><a href="$pullRequest.repoUrl" target="_blank">$pullRequest.repoName</a></td>
+                    <td headers="branch">$pullRequest.branchName</td>
+                    <td headers="status">$pullRequest.status</td>
                 </tr>
             #end
         </tbody>

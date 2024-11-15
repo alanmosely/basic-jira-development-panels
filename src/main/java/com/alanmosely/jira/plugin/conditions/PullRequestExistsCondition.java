@@ -1,17 +1,16 @@
 package com.alanmosely.jira.plugin.conditions;
 
-import com.atlassian.jira.issue.Issue;
-import com.atlassian.plugin.PluginParseException;
-import com.atlassian.plugin.web.Condition;
-import com.alanmosely.jira.plugin.impl.PullRequestService;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import java.util.Map;
-
 import org.apache.log4j.Logger;
+
+import com.alanmosely.jira.plugin.impl.PullRequestService;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.plugin.PluginParseException;
+import com.atlassian.plugin.web.Condition;
 
 @Named
 public class PullRequestExistsCondition implements Condition {

@@ -23,6 +23,7 @@
         <description>Displays associated pull requests</description>
         <label>Code</label>
         <order>100</order>
+        <supports-ajax-load>true</supports-ajax-load>
         <resource name="view" type="velocity" location="/templates/pullrequest-tabpanel.vm"/>
         <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
     </issue-tabpanel>
