@@ -16,7 +16,7 @@
                     <td headers="repo"><a href="$pullRequest.repoUrl" target="_blank">$pullRequest.repoName</a></td>
                     <td headers="branch">$pullRequest.branchName</td>
                     <td headers="status">$pullRequest.status</td>
-                    <td headers="updated">$!dateFormatter.formatDate($pullRequest.updated)</td>
+                    <td headers="updated">$outlookdate.format($pullRequest.updated)</td>
                 </tr>
             #end
         </tbody>
