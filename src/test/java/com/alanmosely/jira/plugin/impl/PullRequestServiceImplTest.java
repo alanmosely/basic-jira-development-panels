@@ -1,4 +1,4 @@
-package it.com.alanmosely.jira.plugin.impl;
+package com.alanmosely.jira.plugin.impl;
 
 import java.util.Date;
 import java.util.List;
@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -17,13 +16,10 @@ import static org.mockito.Mockito.when;
 
 import com.alanmosely.jira.plugin.ao.PullRequestEntity;
 import com.alanmosely.jira.plugin.api.PullRequestModel;
-import com.alanmosely.jira.plugin.impl.PullRequestServiceImpl;
 import com.atlassian.activeobjects.external.ActiveObjects;
-import com.atlassian.plugins.osgi.test.AtlassianPluginsTestRunner;
 
 import net.java.ao.Query;
 
-@RunWith(AtlassianPluginsTestRunner.class)
 public class PullRequestServiceImplTest {
 
     private ActiveObjects activeObjects;
