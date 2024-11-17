@@ -33,7 +33,7 @@ Once you have installed the SDK you can use the following commands:
 * atlas-debug -- same as atlas-run, but allows a debugger to attach at port 5005
 * atlas-package -- creates a jar file, which is used by the product during plugin installation
 * atlas-mvn test -- runs the unit tests for the plugin
-* atlas-mvn integration-test -- runs the integration tests for the plugin  (do not use atlas-integration-test as it runs refapp, not jira)
+* atlas-mvn integration-test -- runs the integration tests for the plugin  (do not use atlas-integration-test as it runs refapp, not jira) - have not been able to make this work yet
 * atlas-clean -- clears the previous version of the host application from your build output directory
 * atlas-help  -- prints description for all commands in the SDK
 
