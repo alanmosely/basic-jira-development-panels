@@ -1,5 +1,7 @@
 package com.alanmosely.jira.plugin.api;
 
+import java.util.Date;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,6 +16,7 @@ public class PullRequestModel {
     private String repoName;
     private String repoUrl;
     private String branchName;
+    private Date updated;
 
     public String getName() {
         return name;
@@ -61,5 +64,13 @@ public class PullRequestModel {
 
     public void setRepoUrl(String repoUrl) {
         this.repoUrl = repoUrl;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 }

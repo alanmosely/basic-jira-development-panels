@@ -3,15 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alanmosely</groupId>
     <artifactId>basic-jira-development-panels</artifactId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0</version>
 
     <organization>
         <name>Alan Mosely</name>
         <url>https://github.com/alanmosely</url>
     </organization>
 
-    <name>Basic JIRA Development Panels</name>
-    <description>This is the com.alanmosely:basic-jira-development-panels plugin for Atlassian JIRA.</description>
+    <name>Basic Jira Development Panels</name>
+    <description>This is the com.alanmosely:basic-jira-development-panels plugin for Atlassian Jira.</description>
     <packaging>atlassian-plugin</packaging>
 
     <dependencies>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.atlassian.plugins.rest</groupId>
             <artifactId>atlassian-rest-common</artifactId>
-            <version>8.0.6</version>
+            <version>8.0.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -57,17 +57,17 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.atlassian.plugin</groupId>
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
             <version>${atlassian.spring.scanner.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.plugin</groupId>
+            <artifactId>atlassian-spring-scanner-runtime</artifactId>
+            <version>${atlassian.spring.scanner.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -84,14 +84,13 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- WIRED TEST RUNNER DEPENDENCIES -->
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
             <version>${plugin.testrunner.version}</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>jsr311-api</artifactId>
@@ -105,16 +104,19 @@
             <version>2.2.2-atlassian-1</version>
         </dependency>
 
-        <!-- Uncomment to use TestKit in your project. Details at https://bitbucket.org/atlassian/jira-testkit -->
-        <!-- You can read more about TestKit at https://developer.atlassian.com/display/JIRADEV/Plugin+Tutorial+-+Smarter+integration+testing+with+TestKit -->
-        <!--
         <dependency>
-            <groupId>com.atlassian.jira.tests</groupId>
-            <artifactId>jira-testkit-client</artifactId>
-            <version>${testkit.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        -->
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.23.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -156,38 +158,16 @@
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <product>jira</product>
                     <productVersion>${jira.version}</productVersion>
-                    <productDataVersion>${jira.version}</productDataVersion>
-                    <!-- Uncomment to install TestKit backdoor in JIRA. -->
-                    <!--
-                    <pluginArtifacts>
-                        <pluginArtifact>
-                            <groupId>com.atlassian.jira.tests</groupId>
-                            <artifactId>jira-testkit-plugin</artifactId>
-                            <version>${testkit.version}</version>
-                        </pluginArtifact>
-                    </pluginArtifacts>
-                    -->
+                    <libArtifacts>
+                        <libArtifact>
+                            <groupId>com.h2database</groupId>
+                            <artifactId>h2</artifactId>
+                            <version>1.4.200</version>
+                        </libArtifact>
+                    </libArtifacts>
                     <enableQuickReload>true</enableQuickReload>
-
-                    <!-- See here for an explanation of default instructions: -->
-                    <!-- https://developer.atlassian.com/docs/advanced-topics/configuration-of-instructions-in-atlassian-plugins -->
-                    <instructions>
-                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
-
-                        <!-- Add package to export here -->
-                        <Export-Package>
-                            com.alanmosely.jira.plugin.api,
-                        </Export-Package>
-
-                        <!-- Add package import here -->
-                        <Import-Package> org.springframework.osgi.*;resolution:="optional", org.eclipse.gemini.blueprint.*;resolution:="optional",
-                            *
-                        </Import-Package>
-
-                        <!-- Ensure plugin is spring powered -->
-                        <Spring-Context>*</Spring-Context>
-                    </instructions>
                 </configuration>
             </plugin>
             <plugin>
@@ -210,19 +190,16 @@
     </build>
 
     <properties>
-        <jira.version>7.13.0</jira.version>
-        <amps.version>8.1.2</amps.version>
-        <ao.version>3.2.0</ao.version>
-        <sal.version>4.0.0</sal.version>
-        <plugin.testrunner.version>2.0.2</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>2.1.7</atlassian.spring.scanner.version>
-        <!-- This property ensures consistency between the key in atlassian-plugin.xml and the OSGi bundle's key. -->
+        <jira.version>9.12.0</jira.version>
+        <amps.version>8.11.2</amps.version>
+        <!-- https://bitbucket.org/atlassian/platform-module-usage/wiki/activeobjects.md -->
+        <ao.version>5.2.1</ao.version>
+        <!-- https://bitbucket.org/atlassian/platform-module-usage/wiki/atlassian-sal.md -->
+        <sal.version>5.0.5</sal.version>
+        <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
+        <atlassian.spring.scanner.version>2.1.9</atlassian.spring.scanner.version>
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-        <!-- TestKit version 6.x for JIRA 6.x -->
-        <testkit.version>6.3.11</testkit.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
 </project>
