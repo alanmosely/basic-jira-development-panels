@@ -48,6 +48,10 @@ public class PullRequestContextProvider implements ContextProvider {
             newContext.put("codeNotifications", false);
         }
 
+        String baseUrl = ComponentAccessor.getApplicationProperties().getString("jira.baseurl");
+        String pluginUrl = baseUrl + "/plugins/servlet/pullrequest-notifications";
+        newContext.put("pluginUrl", pluginUrl);
+
         log.debug("Exiting getContextMap with newContext: {}", newContext);
         return newContext;
     }
