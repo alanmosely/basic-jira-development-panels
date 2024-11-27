@@ -6,25 +6,33 @@
         <param name="plugin-icon">images/pluginLogo.png</param>
     </plugin-info>
 
-    <!-- Active Objects -->
-    <ao key="pull-request-ao">
+    <ao key="pull-request-ao" name="Pull Request Entity">
+        <description>Entity for storing pull requests</description>
         <entity>com.alanmosely.jira.plugin.ao.PullRequestEntity</entity>
     </ao>
 
-    <!-- REST Module -->
-    <rest key="pull-request-rest" path="/pullrequest" version="1.0">
+    <rest key="pull-request-rest" name="Pull Request API" path="/pullrequest" version="1.0">
         <description>Pull Request REST API</description>
         <resource key="pullRequestResource" name="PullRequestResource" type="java" location="com.alanmosely.jira.plugin.api.PullRequestResource"/>
-
     </rest>
 
-    <!-- Issue Tab Panel -->
-    <issue-tabpanel key="pull-request-tabpanel" name="Pull Requests" i18n-name-key="pullrequest.tab.title" class="com.alanmosely.jira.plugin.tabpanel.PullRequestTabPanel">
-        <description>Displays associated pull requests</description>
+    <issue-tabpanel key="pull-request-tabpanel" name="Pull Request Tab Panel" class="com.alanmosely.jira.plugin.tabpanel.PullRequestTabPanel">
+        <description>Panel that displays associated pull requests on issues</description>
         <label>Code</label>
         <order>100</order>
         <supports-ajax-load>true</supports-ajax-load>
         <resource name="view" type="velocity" location="/templates/pullrequest-tabpanel.vm"/>
         <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
     </issue-tabpanel>
+
+    <web-panel key="pull-request-notifications" name="Pull Request Notifications Panel" location="webpanels.user.profile.summary.custom" weight="100">
+        <description>Panel that lets users set their notification preference</description>
+        <context-provider class="com.alanmosely.jira.plugin.context.PullRequestContextProvider"/>
+        <resource name="view" type="velocity" location="/templates/pullrequest-notifications-panel.vm"/>
+    </web-panel>
+
+    <servlet key="pull-request-notifications-servlet" name="Pull Request Notifications Servlet" class="com.alanmosely.jira.plugin.servlets.PullRequestNotificationsServlet">
+        <description>Saves the Code Notifications user property</description>
+        <url-pattern>/pullrequest-notifications</url-pattern>
+    </servlet>
 </atlassian-plugin>

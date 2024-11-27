@@ -2,7 +2,9 @@ package com.alanmosely.jira.plugin.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -10,7 +12,15 @@ import javax.inject.Named;
 import com.alanmosely.jira.plugin.ao.PullRequestEntity;
 import com.alanmosely.jira.plugin.api.PullRequestModel;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.issue.watchers.WatcherManager;
+import com.atlassian.jira.mail.Email;
+import com.atlassian.jira.user.ApplicationUser;
+import com.atlassian.jira.user.UserPropertyManager;
+import com.atlassian.mail.queue.SingleMailQueueItem;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.opensymphony.module.propertyset.PropertySet;
 
 import net.java.ao.Query;
 
@@ -29,6 +39,60 @@ public class PullRequestServiceImpl implements PullRequestService {
         PullRequestEntity entity = findOrCreateEntity(issueKey, model.getUrl());
         updateEntityFromModel(entity, model);
         entity.save();
+        processPullRequest(entity);
+    }
+
+    private void processPullRequest(PullRequestEntity entity) {
+        Set<ApplicationUser> involvedUsers = new HashSet<>();
+        Issue issue = ComponentAccessor.getIssueManager().getIssueObject(entity.getIssueKey());
+        if (issue.getAssignee() != null) {
+            involvedUsers.add(issue.getAssignee());
+        }
+        if (issue.getReporter() != null) {
+            involvedUsers.add(issue.getReporter());
+        }
+        WatcherManager watcherManager = ComponentAccessor.getWatcherManager();
+        involvedUsers.addAll(watcherManager.getWatchersUnsorted(issue));
+
+        UserPropertyManager userPropertyManager = ComponentAccessor.getUserPropertyManager();
+
+        for (ApplicationUser user : involvedUsers) {
+            if (user == null)
+                continue;
+            PropertySet userProperties = userPropertyManager.getPropertySet(user);
+            boolean codeNotifications = userProperties.getBoolean("com.alanmosely.jira.plugin.codeNotifications");
+            if (codeNotifications) {
+                sendEmailToUser(user, issue, entity);
+            }
+        }
+    }
+
+    private void sendEmailToUser(ApplicationUser user, Issue issue, PullRequestEntity entity) {
+        String issueUrl = ComponentAccessor.getApplicationProperties().getString("jira.baseurl") + "/browse/"
+                + issue.getKey();
+
+        Email email = new Email(user.getEmailAddress());
+        email.setSubject("Code update on " + issue.getKey());
+        String emailBody = "<html>"
+                + "<body>"
+                + "<p>Hello " + user.getDisplayName() + ",</p>"
+                + "<p>There has been a code update related to <strong><a href='" + issueUrl + "'>" + issue.getKey()
+                + "</a></strong>.</p>"
+                + "<br/><p><strong>Details:</strong></p>"
+                + "<ul>"
+                + "<li><strong>PR:</strong> <a href='" + entity.getUrl() + "'>" + entity.getName() + "</a></li>"
+                + "<li><strong>Repository:</strong> <a href='" + entity.getRepoUrl() + "'>" + entity.getRepoName()
+                + "</a></li>"
+                + "<li><strong>Branch:</strong> " + entity.getBranchName() + "</li>"
+                + "<li><strong>Status:</strong> " + entity.getStatus() + "</li>"
+                + "</ul>"
+                + "</body>"
+                + "</html>";
+        email.setBody(emailBody);
+        email.setMimeType("text/html");
+
+        SingleMailQueueItem mailItem = new SingleMailQueueItem(email);
+        ComponentAccessor.getMailQueue().addItem(mailItem);
     }
 
     private PullRequestEntity findOrCreateEntity(String issueKey, String url) {
