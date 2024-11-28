@@ -10,29 +10,45 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.alanmosely.jira.plugin.ao.PullRequestEntity;
 import com.alanmosely.jira.plugin.api.PullRequestModel;
 import com.atlassian.activeobjects.external.ActiveObjects;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 import net.java.ao.Query;
 
 public class PullRequestServiceImplTest {
 
     private ActiveObjects activeObjects;
+    private PluginSettingsFactory pluginSettingsFactory;
+    private PluginSettings pluginSettings;
     private PullRequestServiceImpl pullRequestService;
+
+    private static final String PLUGIN_STORAGE_KEY = "com.alanmosely.jira.plugin.pullrequestadmin";
 
     @Before
     public void setUp() {
         activeObjects = mock(ActiveObjects.class);
-        pullRequestService = new PullRequestServiceImpl(activeObjects);
+        pluginSettingsFactory = mock(PluginSettingsFactory.class);
+        pluginSettings = mock(PluginSettings.class);
+
+        when(pluginSettingsFactory.createGlobalSettings()).thenReturn(pluginSettings);
+
+        pullRequestService = new PullRequestServiceImpl(activeObjects, pluginSettingsFactory);
     }
 
     @Test
-    public void testCreatePullRequest() {
+    public void testCreatePullRequest_WhenProcessingEnabled() {
+        when(pluginSettings.get(PLUGIN_STORAGE_KEY + ".notificationsEnabled")).thenReturn("true");
+
         String issueKey = "TEST-1";
         PullRequestModel model = new PullRequestModel();
         model.setName("PR Name");
@@ -47,7 +63,10 @@ public class PullRequestServiceImplTest {
         when(activeObjects.find(eq(PullRequestEntity.class), any(Query.class))).thenReturn(new PullRequestEntity[] {});
         when(activeObjects.create(PullRequestEntity.class)).thenReturn(entity);
 
-        pullRequestService.createPullRequest(issueKey, model);
+        PullRequestServiceImpl spyService = spy(pullRequestService);
+        doNothing().when(spyService).sendNotifications(any(PullRequestEntity.class));
+
+        spyService.createPullRequest(issueKey, model);
 
         verify(entity).setIssueKey(issueKey);
         verify(entity).setName(model.getName());
@@ -58,6 +77,44 @@ public class PullRequestServiceImplTest {
         verify(entity).setBranchName(model.getBranchName());
         verify(entity).setUpdated(any(Date.class));
         verify(entity).save();
+
+        verify(spyService).sendNotifications(entity);
+    }
+
+    @Test
+    public void testCreatePullRequest_WhenProcessingDisabled() {
+        when(pluginSettings.get(PLUGIN_STORAGE_KEY + ".notificationsEnabled")).thenReturn("false");
+
+        String issueKey = "TEST-1";
+        PullRequestModel model = new PullRequestModel();
+        model.setName("PR Name");
+        model.setUrl("http://example.com/pr/1");
+        model.setStatus("Open");
+        model.setRepoName("Repo Name");
+        model.setRepoUrl("http://example.com/repo");
+        model.setBranchName("feature-branch");
+        model.setUpdated(new Date());
+
+        PullRequestEntity entity = mock(PullRequestEntity.class);
+        when(activeObjects.find(eq(PullRequestEntity.class), any(Query.class))).thenReturn(new PullRequestEntity[] {});
+        when(activeObjects.create(PullRequestEntity.class)).thenReturn(entity);
+
+        PullRequestServiceImpl spyService = spy(pullRequestService);
+        doNothing().when(spyService).sendNotifications(any(PullRequestEntity.class));
+
+        spyService.createPullRequest(issueKey, model);
+
+        verify(entity).setIssueKey(issueKey);
+        verify(entity).setName(model.getName());
+        verify(entity).setUrl(model.getUrl());
+        verify(entity).setStatus(model.getStatus());
+        verify(entity).setRepoName(model.getRepoName());
+        verify(entity).setRepoUrl(model.getRepoUrl());
+        verify(entity).setBranchName(model.getBranchName());
+        verify(entity).setUpdated(any(Date.class));
+        verify(entity).save();
+
+        verify(spyService, never()).sendNotifications(any(PullRequestEntity.class));
     }
 
     @Test
@@ -98,5 +155,4 @@ public class PullRequestServiceImplTest {
 
         assertTrue(result);
     }
-
 }

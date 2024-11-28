@@ -1,0 +1,16 @@
+$action.getBreadcrumbsHtml()
+
+<h1>Basic Jira Development Panels Configuration</h1>
+
+<form action="$req.contextPath/secure/PullRequestAdminAction.jspa" method="post">
+    <div class="field-group">
+        <label>
+            <input type="checkbox" name="notificationsEnabled" value="true"
+            #if($action.areNotificationsEnabled()) checked="checked" #end/>
+            Enable Email Notifications
+        </label>
+    </div>
+    <div class="buttons-container">
+        <input type="submit" class="aui-button aui-button-primary" value="Save"/>
+    </div>
+</form>

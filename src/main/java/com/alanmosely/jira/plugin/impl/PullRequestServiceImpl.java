@@ -25,6 +25,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserPropertyManager;
 import com.atlassian.mail.queue.SingleMailQueueItem;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.opensymphony.module.propertyset.PropertyException;
 import com.opensymphony.module.propertyset.PropertySet;
 
@@ -34,12 +35,16 @@ import net.java.ao.Query;
 public class PullRequestServiceImpl implements PullRequestService {
 
     private static final Logger log = LoggerFactory.getLogger(PullRequestServiceImpl.class);
+    private static final String PLUGIN_STORAGE_KEY = "com.alanmosely.jira.plugin.pullrequestadmin";
 
     private final ActiveObjects activeObjects;
+    private final PluginSettingsFactory pluginSettingsFactory;
 
     @Inject
-    public PullRequestServiceImpl(@ComponentImport ActiveObjects activeObjects) {
+    public PullRequestServiceImpl(@ComponentImport ActiveObjects activeObjects,
+            @ComponentImport PluginSettingsFactory pluginSettingsFactory) {
         this.activeObjects = activeObjects;
+        this.pluginSettingsFactory = pluginSettingsFactory;
     }
 
     @Override
@@ -52,13 +57,23 @@ public class PullRequestServiceImpl implements PullRequestService {
             entity.save();
             log.info("Pull request entity saved for issueKey: {}", issueKey);
 
-            processPullRequest(entity);
+            if (areNotificationsEnabled()) {
+                sendNotifications(entity);
+            } else {
+                log.info("Pull request processing is disabled by administrator.");
+            }
         } catch (Exception e) {
             log.error("Error creating pull request for issueKey: {}", issueKey, e);
         }
     }
 
-    private void processPullRequest(PullRequestEntity entity) {
+    private boolean areNotificationsEnabled() {
+        String value = (String) pluginSettingsFactory.createGlobalSettings()
+                .get(PLUGIN_STORAGE_KEY + ".notificationsEnabled");
+        return value == null || Boolean.parseBoolean(value);
+    }
+
+    void sendNotifications(PullRequestEntity entity) {
         log.debug("Processing pull request entity for issueKey: {}", entity.getIssueKey());
 
         try {

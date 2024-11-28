@@ -17,21 +17,33 @@ import com.alanmosely.jira.plugin.impl.PullRequestServiceImpl;
 import com.atlassian.activeobjects.external.ActiveObjects;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.plugins.osgi.test.AtlassianPluginsTestRunner;
+import com.atlassian.sal.api.pluginsettings.PluginSettings;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 @RunWith(AtlassianPluginsTestRunner.class)
 public class PullRequestServiceImplIntegrationTest {
 
     private ActiveObjects activeObjects;
+    private PluginSettingsFactory pluginSettingsFactory;
+    private PluginSettings pluginSettings;
     private PullRequestServiceImpl pullRequestService;
+
+    private static final String PLUGIN_STORAGE_KEY = "com.alanmosely.jira.plugin.pullrequestadmin";
 
     @Before
     public void setUp() {
         activeObjects = ComponentAccessor.getOSGiComponentInstanceOfType(ActiveObjects.class);
-        pullRequestService = new PullRequestServiceImpl(activeObjects);
+        pluginSettingsFactory = ComponentAccessor.getOSGiComponentInstanceOfType(PluginSettingsFactory.class);
+        pluginSettings = pluginSettingsFactory.createGlobalSettings();
+
+        pluginSettings.put(PLUGIN_STORAGE_KEY + ".notificationsEnabled", "true");
+
+        pullRequestService = new PullRequestServiceImpl(activeObjects, pluginSettingsFactory);
     }
 
     @After
     public void tearDown() {
+        pluginSettings.remove(PLUGIN_STORAGE_KEY + ".notificationsEnabled");
     }
 
     @Test
@@ -82,5 +94,35 @@ public class PullRequestServiceImplIntegrationTest {
 
         hasPRs = pullRequestService.hasPullRequests(issueKey);
         assertTrue(hasPRs);
+    }
+
+    @Test
+    public void testCreatePullRequest_WhenProcessingDisabled() {
+        pluginSettings.put(PLUGIN_STORAGE_KEY + ".notificationsEnabled", "false");
+
+        String issueKey = "TEST-2";
+        PullRequestModel model = new PullRequestModel();
+        model.setName("PR Name 2");
+        model.setUrl("http://example.com/pr/2");
+        model.setStatus("Closed");
+        model.setRepoName("Repo Name 2");
+        model.setRepoUrl("http://example.com/repo2");
+        model.setBranchName("bugfix-branch");
+        model.setUpdated(new Date());
+
+        pullRequestService.createPullRequest(issueKey, model);
+
+        List<PullRequestModel> models = pullRequestService.getPullRequests(issueKey);
+
+        assertNotNull(models);
+        assertEquals(1, models.size());
+        PullRequestModel retrievedModel = models.get(0);
+        assertEquals(model.getName(), retrievedModel.getName());
+        assertEquals(model.getUrl(), retrievedModel.getUrl());
+        assertEquals(model.getStatus(), retrievedModel.getStatus());
+        assertEquals(model.getRepoName(), retrievedModel.getRepoName());
+        assertEquals(model.getRepoUrl(), retrievedModel.getRepoUrl());
+        assertEquals(model.getBranchName(), retrievedModel.getBranchName());
+        assertNotNull(retrievedModel.getUpdated());
     }
 }
