@@ -36,25 +36,20 @@
         <url-pattern>/pullrequest-notifications</url-pattern>
     </servlet>
 
-    <!-- <webwork1 key="pull-request-admin" name="Pull Request Admin Action">
+    <webwork1 key="pull-request-admin" name="Pull Request Admin Action">
         <description>Admin actions</description>
         <actions>
-            <action name="com.alanmosely.jira.plugin.admin.PullRequestAdminAction" alias="PullRequestAdmin">
+            <action name="com.alanmosely.jira.plugin.admin.PullRequestAdminAction" alias="PullRequestAdmin" allowedMethods="GET,POST">
                 <view name="input">/templates/pullrequest-admin.vm</view>
+                <view name="success">/templates/pullrequest-admin.vm</view>
             </action>
         </actions>
-    </webwork1> -->
+    </webwork1>
 
-    <!-- <web-section key="pull-request-admin-section" name="Pull Request Plugin Admin" location="admin_system_menu/top_system_section" weight="150">
-        <description>Admin section</description>
-        <label>Basic Jira Dev Panels</label>
-        <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserIsAdminCondition" />
-    </web-section> -->
-
-    <!-- <web-item key="pull-request-admin-link" name="Pull Request Plugin Configuration" section="admin_system_menu/top_system_section" weight="10">
-        <description>Admin link</description>
+    <web-item key="pull-request-admin-link" name="Pull Request Plugin Configuration" section="top_system_section/mail_section" weight="500">
+        <description>Notifications Admin link</description>
         <label>Code Notifications</label>
-        <link linkId="pull-request-admin-link-id">/secure/PullRequestAdmin.jspa</link>
-    </web-item> -->
+        <link linkId="pull-request-admin-link-id">/secure/admin/PullRequestAdmin.jspa</link>
+    </web-item>
 
 </atlassian-plugin>

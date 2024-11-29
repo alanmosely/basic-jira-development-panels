@@ -1,16 +1,28 @@
-$action.getBreadcrumbsHtml()
+<html>
+<head>
+    <title>Basic Jira Development Panels Configuration</title>
+    <meta name="decorator" content="atl.admin">
+</head>
+<body class="page-type-admin">
+    <h2>Basic Jira Development Panels Configuration</h2>
 
-<h1>Basic Jira Development Panels Configuration</h1>
+    <div id="configuration-info" class="aui-message aui-message-info">
+        <p><b>Use this option to disable email notifications for the Code panel.</b></p>
+        <p>In cases of performance issues, disabling this means all funcitonality to calculate and send email notifications will be skipped.</p>
+    </div>
 
-<form action="$req.contextPath/secure/PullRequestAdminAction.jspa" method="post">
-    <div class="field-group">
-        <label>
-            <input type="checkbox" name="notificationsEnabled" value="true"
-            #if($action.areNotificationsEnabled()) checked="checked" #end/>
-            Enable Email Notifications
-        </label>
-    </div>
-    <div class="buttons-container">
-        <input type="submit" class="aui-button aui-button-primary" value="Save"/>
-    </div>
-</form>
+    <form action="$req.contextPath/secure/admin/PullRequestAdmin.jspa" method="post" class="aui long-label unsectioned">
+        <input type="hidden" name="atl_token" value="$atl_token"/>
+        <div class="field-group">
+            <label>
+                <input type="checkbox" name="notificationsEnabled" value="true"
+                #if($action.areNotificationsEnabled()) checked="checked" #end/>
+                Enable Email Notifications
+            </label>
+        </div>
+        <div class="buttons-container">
+            <input type="submit" class="aui-button aui-button-primary" value="Save"/>
+        </div>
+    </form>
+</body>
+</html>
