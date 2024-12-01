@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alanmosely</groupId>
     <artifactId>basic-jira-development-panels</artifactId>
-    <version>1.0.1-RC2</version>
+    <version>1.0.1</version>
 
     <organization>
         <name>Alan Mosely</name>
