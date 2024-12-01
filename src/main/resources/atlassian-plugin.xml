@@ -28,7 +28,7 @@
     <web-panel key="pull-request-notifications" name="Pull Request Notifications Panel" location="webpanels.user.profile.summary.custom" weight="100">
         <description>Panel that lets users set their notification preference</description>
         <context-provider class="com.alanmosely.jira.plugin.context.PullRequestContextProvider"/>
-        <resource name="view" type="velocity" location="/templates/pullrequest-notifications-panel.vm"/>
+        <resource name="view" type="velocity" location="/templates/pullrequest-profile-panel.vm"/>
     </web-panel>
 
     <servlet key="pull-request-notifications-servlet" name="Pull Request Notifications Servlet" class="com.alanmosely.jira.plugin.servlets.PullRequestNotificationsServlet">

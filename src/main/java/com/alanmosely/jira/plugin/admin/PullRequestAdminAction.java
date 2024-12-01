@@ -2,6 +2,7 @@ package com.alanmosely.jira.plugin.admin;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +18,12 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     private static final Logger logger = LoggerFactory.getLogger(PullRequestAdminAction.class);
 
     private static final String PLUGIN_STORAGE_KEY = "com.alanmosely.jira.plugin.pullrequestadmin";
+    private static final String NOTIFICATIONS_ENABLED_KEY = PLUGIN_STORAGE_KEY + ".notificationsEnabled";
+    private static final String API_USER_KEY = PLUGIN_STORAGE_KEY + ".apiUser";
+
     private final PluginSettingsFactory pluginSettingsFactory;
     private boolean notificationsEnabled;
+    private String apiUser;
 
     @Inject
     public PullRequestAdminAction(PluginSettingsFactory pluginSettingsFactory) {
@@ -29,10 +34,15 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     @Override
     public String doDefault() {
         logger.debug("Entering doDefault()");
-        String value = (String) pluginSettingsFactory.createGlobalSettings()
-                .get(PLUGIN_STORAGE_KEY + ".notificationsEnabled");
-        notificationsEnabled = value == null || Boolean.parseBoolean(value);
+        String notificationsValue = (String) pluginSettingsFactory.createGlobalSettings()
+                .get(NOTIFICATIONS_ENABLED_KEY);
+        notificationsEnabled = notificationsValue == null || Boolean.parseBoolean(notificationsValue);
         logger.debug("notificationsEnabled set to: {}", notificationsEnabled);
+
+        String apiUserValue = (String) pluginSettingsFactory.createGlobalSettings().get(API_USER_KEY);
+        apiUser = StringUtils.defaultIfBlank(apiUserValue, "");
+        logger.debug("apiUser set to: {}", apiUser);
+
         return INPUT;
     }
 
@@ -42,19 +52,28 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
         logger.debug("Entering doExecute()");
         if (RequestMethod.POST.toString().equals(getHttpRequest().getMethod())) {
             logger.debug("Handling POST request");
-            pluginSettingsFactory.createGlobalSettings().put(PLUGIN_STORAGE_KEY + ".notificationsEnabled",
+            pluginSettingsFactory.createGlobalSettings().put(NOTIFICATIONS_ENABLED_KEY,
                     Boolean.toString(notificationsEnabled));
             logger.debug("notificationsEnabled set to: {}", notificationsEnabled);
+
+            pluginSettingsFactory.createGlobalSettings().put(API_USER_KEY,
+                    StringUtils.isBlank(apiUser) ? null : apiUser.trim());
+            logger.debug("apiUser set to: {}", apiUser);
+
             return SUCCESS;
         } else {
             logger.debug("Handling GET request");
-            String value = (String) pluginSettingsFactory.createGlobalSettings()
-                    .get(PLUGIN_STORAGE_KEY + ".notificationsEnabled");
-            notificationsEnabled = value == null || Boolean.parseBoolean(value);
+            String notificationsValue = (String) pluginSettingsFactory.createGlobalSettings()
+                    .get(NOTIFICATIONS_ENABLED_KEY);
+            notificationsEnabled = notificationsValue == null || Boolean.parseBoolean(notificationsValue);
             logger.debug("notificationsEnabled set to: {}", notificationsEnabled);
+
+            String apiUserValue = (String) pluginSettingsFactory.createGlobalSettings().get(API_USER_KEY);
+            apiUser = StringUtils.defaultIfBlank(apiUserValue, "");
+            logger.debug("apiUser set to: {}", apiUser);
+
             return INPUT;
         }
-
     }
 
     public boolean areNotificationsEnabled() {
@@ -65,5 +84,15 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     public void setNotificationsEnabled(boolean notificationsEnabled) {
         logger.debug("setNotificationsEnabled() called with: {}", notificationsEnabled);
         this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public String getApiUser() {
+        logger.debug("getApiUser() called, returning: {}", apiUser);
+        return apiUser;
+    }
+
+    public void setApiUser(String apiUser) {
+        logger.debug("setApiUser() called with: {}", apiUser);
+        this.apiUser = apiUser;
     }
 }

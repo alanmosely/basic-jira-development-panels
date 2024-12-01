@@ -8,6 +8,16 @@ In the future, we may add a 'Builds' tab that will allow the creation and updati
 
 ## Usage
 
+### Viewing Pull Request information
+
+When the plugin is installed and enabled and at least one Pull Request has been associated with a Jira issue, a new 'Code' tab will appear in the 'Activity' panel at the bottom of the Jira issue view. This tab will show a list of all Pull Requests associated with the issue.
+
+### Configuring email notifications
+
+By default, no email notifications are sent when a Pull Request is created or updated. Users can individually opt into email notifications in their User Profiles by selecting 'Enable Code notifications'. When a user has this option enabled, if they are the issue assignee, reporter or a watcher when a Pull Request is created or updated, they will receive an email notification.
+
+### Creating/updating Pull Requests against Jira issues
+
 To create/update a Pull Request entry against the `FOO-1` issue on a Jira instance @ <http://localhost:2990/jira>, you can use the following `curl` command (the Jira user does not require any special permissions):
 
 ```bash
@@ -22,6 +32,13 @@ curl -X POST -H "Content-Type: application/json" \
        "repoUrl": "https://github.com/repo"
      }' http://localhost:2990/jira/rest/pullrequest/1.0/code/FOO-1
 ```
+
+## Administration
+
+Once the plugin is installed, you can configure the following settings in the Jira administration panel (under Administration > System > Mail > Code Notifications):
+
+* **Enable Email Notifications**: This enables the processing and sending of email notifications when a Pull Request is created or updated (for users that have opted in)
+* **Restrict API to User**: This allows you to restrict the API endpoint to a specific user. This is useful if you want to restrict who can create or update Pull Requests
 
 ## Development
 

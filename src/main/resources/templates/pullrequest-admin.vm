@@ -15,12 +15,19 @@
         <input type="hidden" name="atl_token" value="$atl_token"/>
         <div class="field-group">
             <label>
-                <input type="checkbox" name="notificationsEnabled" value="true"
-                #if($action.areNotificationsEnabled()) checked="checked" #end/>
                 Enable Email Notifications
             </label>
+            <input type="checkbox" name="notificationsEnabled" style="vertical-align: middle;" value="true" #if($action.areNotificationsEnabled()) checked="checked" #end/>
+            <span title="Whether to enable email notifications for new/updated Pull Requests linked to Jira issues" class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">help</span>
         </div>
-        <div class="buttons-container">
+        <br/>
+        <div class="field-group">
+            <label for="apiUser">Restrict API to User</label>
+            <input type="text" name="apiUser" id="apiUser" value="$action.getApiUser()" />
+            <span title="Optionally restrict the creation/update of pull requests via the API to a user; leave blank to allow any user." class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">help</span>
+        </div>
+        <br/>
+        <div class="field-group">
             <input type="submit" class="aui-button aui-button-primary" value="Save"/>
         </div>
     </form>

@@ -1,0 +1,43 @@
+#set($notificationPreference = "")
+#if($codeNotifications)
+    #set($notificationPreference = "false")
+#else
+    #set($notificationPreference = "true")
+#end
+
+<div id="notifications-profile-fragment" class="module">
+    <form action="$pluginUrl" method="post" id="notificationsForm">
+        <input type="hidden" name="codeNotifications" id="codeNotifications" value="$notificationPreference"/>
+        <div class="mod-header">
+            <h3>Notifications</h3>
+        </div>
+        <br/>
+        <div class="mod-content">
+            <div class="item-details">
+                <dl>
+                    <dt style="vertical-align: baseline;">Code:</dt>
+                    <dd>
+                        <a href="#" id="toggleNotificationsLink" aria-pressed="$codeNotifications">
+                            #if($codeNotifications)
+                                Disable Code notifications
+                            #else
+                                Enable Code notifications
+                            #end
+                        </a>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function() {
+            $('#toggleNotificationsLink').click(function(e) {
+                e.preventDefault(); 
+                $('#notificationsForm').submit();
+            });
+        });
+    })(AJS.$);
+</script>
