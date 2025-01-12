@@ -128,19 +128,29 @@ public class PullRequestServiceImpl implements PullRequestService {
         log.debug("Sending email to user: {} for issueKey: {}", user.getUsername(), issue.getKey());
 
         try {
-            String issueUrl = ComponentAccessor.getApplicationProperties().getString("jira.baseurl") + "/browse/"
-                    + issue.getKey();
+            String issueUrl = ComponentAccessor.getApplicationProperties().getString("jira.baseurl")
+                    + "/browse/" + issue.getKey();
+
+            String issueTitle = issue.getSummary();
+
+            String emailSubject = "[JIRA] ("
+                    + issue.getKey() + ": "
+                    + issueTitle + ") ["
+                    + entity.getStatus() + "] "
+                    + entity.getRepoName() + " - "
+                    + entity.getName();
 
             Email email = new Email(user.getEmailAddress());
-            email.setSubject("Code update on " + issue.getKey());
+            email.setSubject(emailSubject);
+
             String emailBody = "<html>"
                     + "<body>"
-                    + "<p>Hello " + user.getDisplayName() + ",</p>"
-                    + "<p>There has been a code update related to <strong><a href='" + issueUrl + "'>" + issue.getKey()
-                    + "</a></strong>.</p>"
+                    + "<p>There has been a code update related to "
+                    + "<strong><a href='" + issueUrl + "'>" + issue.getKey() + "</a></strong> (" + issueTitle + ").</p>"
                     + "<br/><p><strong>Details:</strong></p>"
                     + "<ul>"
-                    + "<li><strong>PR:</strong> <a href='" + entity.getUrl() + "'>" + entity.getName() + "</a></li>"
+                    + "<li><strong>Pull Request:</strong> <a href='" + entity.getUrl() + "'>" + entity.getName()
+                    + "</a></li>"
                     + "<li><strong>Repository:</strong> <a href='" + entity.getRepoUrl() + "'>" + entity.getRepoName()
                     + "</a></li>"
                     + "<li><strong>Branch:</strong> " + entity.getBranchName() + "</li>"
