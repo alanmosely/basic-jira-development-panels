@@ -195,8 +195,11 @@ public class PullRequestServiceImpl implements PullRequestService {
         log.debug("Getting pull requests for issueKey: {}", issueKey);
 
         try {
-            PullRequestEntity[] entities = activeObjects.find(PullRequestEntity.class,
-                    Query.select().where("ISSUE_KEY = ?", issueKey));
+            PullRequestEntity[] entities = activeObjects.find(
+                    PullRequestEntity.class,
+                    Query.select()
+                            .where("ISSUE_KEY = ?", issueKey).alias(PullRequestEntity.class, "pullrequest")
+                            .order("pullrequest.UPDATED DESC"));
 
             List<PullRequestModel> models = mapEntitiesToModels(entities);
             log.debug("Retrieved {} pull requests for issueKey: {}", models.size(), issueKey);
