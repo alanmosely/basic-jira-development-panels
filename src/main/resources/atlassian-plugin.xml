@@ -25,6 +25,16 @@
         <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
     </issue-tabpanel>
 
+    <web-panel key="pull-request-webpanel" name="Pull Request Web Panel" location="atl.gh.issue.details.tab" weight="1000">
+        <description>Panel that displays associated pull requests on issues in Jira Agile view</description>
+        <context-provider class="com.alanmosely.jira.plugin.webpanel.PullRequestWebPanel"/>
+        <resource name="view" type="velocity" location="/templates/pullrequest-webpanel.vm"/>
+        <resource name="iconPullRequest" type="download" location="/images/code.png"/>
+        <label>Code</label>
+        <tooltip>View associated pull requests</tooltip>
+        <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
+    </web-panel>
+
     <web-panel key="pull-request-notifications" name="Pull Request Notifications Panel" location="webpanels.user.profile.summary.custom" weight="100">
         <description>Panel that lets users set their notification preference</description>
         <context-provider class="com.alanmosely.jira.plugin.context.PullRequestContextProvider"/>

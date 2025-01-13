@@ -1,0 +1,16 @@
+#if ($pullRequests && $pullRequests.size() > 0)
+    <table class="aui aui-table-list">
+        <tbody>
+            #foreach ($pullRequest in $pullRequests)
+                <tr>
+                    <td headers="pr"><a href="$pullRequest.url" target="_blank">$pullRequest.name</a></td>
+                    <td headers="repo"><a href="$pullRequest.repoUrl" target="_blank">$pullRequest.repoName</a></td>
+                    <td headers="branch">$pullRequest.branchName</td>
+                    <td headers="status">$pullRequest.status</td>
+                </tr>
+            #end
+        </tbody>
+    </table>
+#else
+    <p>There are no pull requests.</p>
+#end
