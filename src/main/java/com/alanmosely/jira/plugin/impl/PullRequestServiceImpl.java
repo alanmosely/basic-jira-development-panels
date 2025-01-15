@@ -133,7 +133,7 @@ public class PullRequestServiceImpl implements PullRequestService {
 
             String issueTitle = issue.getSummary();
 
-            String emailSubject = "[JIRA] ("
+            String emailSubject = "("
                     + issue.getKey() + ": "
                     + issueTitle + ") ["
                     + entity.getStatus() + "] "
