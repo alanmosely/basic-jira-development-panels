@@ -11,6 +11,10 @@ public interface PullRequestEntity extends Entity {
 
     void setIssueKey(String issueKey);
 
+    Long getIssueId();
+
+    void setIssueId(Long issueId);
+
     String getName();
 
     void setName(String name);

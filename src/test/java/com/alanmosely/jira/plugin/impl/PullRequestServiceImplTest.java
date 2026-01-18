@@ -34,6 +34,21 @@ public class PullRequestServiceImplTest {
 
     private static final String PLUGIN_STORAGE_KEY = "com.alanmosely.jira.plugin.pullrequestadmin";
 
+    private static class TestPullRequestServiceImpl extends PullRequestServiceImpl {
+        private final Long issueId;
+
+        TestPullRequestServiceImpl(ActiveObjects activeObjects, PluginSettingsFactory pluginSettingsFactory,
+                Long issueId) {
+            super(activeObjects, pluginSettingsFactory);
+            this.issueId = issueId;
+        }
+
+        @Override
+        protected Long resolveIssueId(String issueKey) {
+            return issueId;
+        }
+    }
+
     @Before
     public void setUp() {
         activeObjects = mock(ActiveObjects.class);
@@ -154,5 +169,34 @@ public class PullRequestServiceImplTest {
         boolean result = pullRequestService.hasPullRequests(issueKey);
 
         assertTrue(result);
+    }
+
+    @Test
+    public void testGetPullRequestsBackfillsIssueIdForRenamedProjectKey() {
+        String issueKey = "BAR-1";
+        String legacyIssueKey = "FOO-1";
+        Long issueId = 1001L;
+
+        PullRequestEntity legacyEntity = mock(PullRequestEntity.class);
+        when(legacyEntity.getIssueId()).thenReturn(null);
+        when(legacyEntity.getIssueKey()).thenReturn(legacyIssueKey);
+        when(legacyEntity.getName()).thenReturn("PR Name");
+        when(legacyEntity.getUrl()).thenReturn("http://example.com/pr/1");
+        when(legacyEntity.getStatus()).thenReturn("Open");
+        when(legacyEntity.getRepoName()).thenReturn("Repo Name");
+        when(legacyEntity.getRepoUrl()).thenReturn("http://example.com/repo");
+        when(legacyEntity.getBranchName()).thenReturn("feature-branch");
+        when(legacyEntity.getUpdated()).thenReturn(new Date());
+
+        when(activeObjects.find(eq(PullRequestEntity.class), any(Query.class)))
+                .thenReturn(new PullRequestEntity[] {}, new PullRequestEntity[] { legacyEntity });
+
+        PullRequestServiceImpl service = new TestPullRequestServiceImpl(activeObjects, pluginSettingsFactory, issueId);
+        List<PullRequestModel> models = service.getPullRequests(issueKey);
+
+        assertNotNull(models);
+        assertEquals(1, models.size());
+        verify(legacyEntity).setIssueId(issueId);
+        verify(legacyEntity).save();
     }
 }

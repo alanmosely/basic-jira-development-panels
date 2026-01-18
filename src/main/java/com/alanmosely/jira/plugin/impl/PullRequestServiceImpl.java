@@ -2,6 +2,7 @@ package com.alanmosely.jira.plugin.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +53,8 @@ public class PullRequestServiceImpl implements PullRequestService {
         log.debug("Creating pull request for issueKey: {}, model: {}", issueKey, model);
 
         try {
-            PullRequestEntity entity = findOrCreateEntity(issueKey, model.getUrl());
+            Long issueId = resolveIssueId(issueKey);
+            PullRequestEntity entity = findOrCreateEntity(issueKey, issueId, model.getUrl());
             updateEntityFromModel(entity, model);
             entity.save();
             log.info("Pull request entity saved for issueKey: {}", issueKey);
@@ -169,18 +171,29 @@ public class PullRequestServiceImpl implements PullRequestService {
         }
     }
 
-    private PullRequestEntity findOrCreateEntity(String issueKey, String url) {
-        log.debug("Finding or creating PullRequestEntity for issueKey: {}, url: {}", issueKey, url);
+    private PullRequestEntity findOrCreateEntity(String issueKey, Long issueId, String url) {
+        log.debug("Finding or creating PullRequestEntity for issueKey: {}, issueId: {}, url: {}",
+                new Object[] { issueKey, issueId, url });
 
-        PullRequestEntity[] entities = activeObjects.find(PullRequestEntity.class,
-                Query.select().where("ISSUE_KEY = ? AND URL = ?", issueKey, url));
+        PullRequestEntity[] entities;
+        if (issueId != null) {
+            entities = activeObjects.find(PullRequestEntity.class,
+                    Query.select().where("ISSUE_ID = ? AND URL = ?", issueId, url));
+        } else {
+            entities = activeObjects.find(PullRequestEntity.class,
+                    Query.select().where("ISSUE_KEY = ? AND URL = ?", issueKey, url));
+        }
 
         if (entities.length > 0) {
-            log.debug("Found existing PullRequestEntity for issueKey: {}, url: {}", issueKey, url);
+            log.debug("Found existing PullRequestEntity for issueKey: {}, issueId: {}, url: {}",
+                    new Object[] { issueKey, issueId, url });
             return entities[0];
         } else {
             PullRequestEntity entity = activeObjects.create(PullRequestEntity.class);
             entity.setIssueKey(issueKey);
+            if (issueId != null) {
+                entity.setIssueId(issueId);
+            }
             log.debug("Created new PullRequestEntity for issueKey: {}", issueKey);
             return entity;
         }
@@ -205,11 +218,7 @@ public class PullRequestServiceImpl implements PullRequestService {
         log.debug("Getting pull requests for issueKey: {}", issueKey);
 
         try {
-            PullRequestEntity[] entities = activeObjects.find(
-                    PullRequestEntity.class,
-                    Query.select()
-                            .where("ISSUE_KEY = ?", issueKey).alias(PullRequestEntity.class, "pullrequest")
-                            .order("pullrequest.UPDATED DESC"));
+            PullRequestEntity[] entities = findPullRequestEntities(issueKey);
 
             List<PullRequestModel> models = mapEntitiesToModels(entities);
             log.debug("Retrieved {} pull requests for issueKey: {}", models.size(), issueKey);
@@ -225,9 +234,7 @@ public class PullRequestServiceImpl implements PullRequestService {
         log.debug("Checking if issueKey {} has pull requests", issueKey);
 
         try {
-            int count = activeObjects.count(PullRequestEntity.class, Query.select()
-                    .where("ISSUE_KEY = ?", issueKey)
-                    .limit(1));
+            int count = countPullRequestEntities(issueKey);
 
             boolean hasPullRequests = count > 0;
             log.debug("IssueKey {} has pull requests: {}", issueKey, hasPullRequests);
@@ -263,5 +270,98 @@ public class PullRequestServiceImpl implements PullRequestService {
 
         log.debug("Mapped PullRequestEntity to PullRequestModel: {}", model);
         return model;
+    }
+
+    private PullRequestEntity[] findPullRequestEntities(String issueKey) {
+        Long issueId = resolveIssueId(issueKey);
+        if (issueId != null) {
+            List<PullRequestEntity> combined = new ArrayList<>();
+            Set<Integer> seenIds = new HashSet<>();
+
+            PullRequestEntity[] byId = activeObjects.find(
+                    PullRequestEntity.class,
+                    Query.select()
+                            .where("ISSUE_ID = ?", issueId).alias(PullRequestEntity.class, "pullrequest")
+                            .order("pullrequest.UPDATED DESC"));
+            for (PullRequestEntity entity : byId) {
+                combined.add(entity);
+                seenIds.add(entity.getID());
+            }
+
+            PullRequestEntity[] legacy = activeObjects.find(
+                    PullRequestEntity.class,
+                    Query.select()
+                            .where("ISSUE_ID IS NULL"));
+            for (PullRequestEntity entity : legacy) {
+                if (issueId.equals(resolveIssueId(entity.getIssueKey()))) {
+                    backfillIssueId(entity, issueId, issueKey);
+                    if (!seenIds.contains(entity.getID())) {
+                        combined.add(entity);
+                        seenIds.add(entity.getID());
+                    }
+                }
+            }
+
+            if (!combined.isEmpty()) {
+                combined.sort(Comparator.comparing(PullRequestEntity::getUpdated).reversed());
+                return combined.toArray(new PullRequestEntity[0]);
+            }
+        }
+
+        PullRequestEntity[] entities = activeObjects.find(
+                PullRequestEntity.class,
+                Query.select()
+                        .where("ISSUE_KEY = ?", issueKey).alias(PullRequestEntity.class, "pullrequest")
+                        .order("pullrequest.UPDATED DESC"));
+
+        return entities;
+    }
+
+    private int countPullRequestEntities(String issueKey) {
+        Long issueId = resolveIssueId(issueKey);
+        if (issueId != null) {
+            int count = activeObjects.count(PullRequestEntity.class, Query.select()
+                    .where("ISSUE_ID = ?", issueId)
+                    .limit(1));
+            if (count > 0) {
+                return count;
+            }
+
+            PullRequestEntity[] legacy = activeObjects.find(
+                    PullRequestEntity.class,
+                    Query.select()
+                            .where("ISSUE_ID IS NULL"));
+            for (PullRequestEntity entity : legacy) {
+                if (issueId.equals(resolveIssueId(entity.getIssueKey()))) {
+                    backfillIssueId(entity, issueId, issueKey);
+                    return 1;
+                }
+            }
+        }
+
+        return activeObjects.count(PullRequestEntity.class, Query.select()
+                .where("ISSUE_KEY = ?", issueKey)
+                .limit(1));
+    }
+
+    private void backfillIssueId(PullRequestEntity entity, Long issueId, String issueKey) {
+        if (entity.getIssueId() == null) {
+            entity.setIssueId(issueId);
+            entity.save();
+            log.debug("Backfilled issueId {} for pull request entity with issueKey {}", issueId, issueKey);
+        }
+    }
+
+    protected Long resolveIssueId(String issueKey) {
+        try {
+            if (ComponentAccessor.getIssueManager() == null) {
+                return null;
+            }
+            Issue issue = ComponentAccessor.getIssueManager().getIssueObject(issueKey);
+            return issue != null ? issue.getId() : null;
+        } catch (Exception e) {
+            log.debug("Unable to resolve issueId for issueKey {}", issueKey, e);
+            return null;
+        }
     }
 }
