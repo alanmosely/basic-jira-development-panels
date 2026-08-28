@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.alanmosely</groupId>
     <artifactId>basic-jira-development-panels</artifactId>
-    <version>1.0.4-RC1</version>
+    <version>2.0.0</version>
 
     <organization>
         <name>Alan Mosely</name>
@@ -83,13 +83,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.atlassian.plugin</groupId>
-            <artifactId>atlassian-spring-scanner-runtime</artifactId>
-            <version>${atlassian.spring.scanner.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
@@ -111,9 +104,9 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
-            <version>1.1.1</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -121,6 +114,7 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.11.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -209,8 +203,8 @@
     </build>
 
     <properties>
-        <jira.version>9.12.0</jira.version>
-        <amps.version>8.11.2</amps.version>
+        <jira.version>11.3.10</jira.version>
+        <amps.version>9.5.3</amps.version>
         <!-- https://bitbucket.org/atlassian/platform-module-usage/wiki/activeobjects.md -->
         <ao.version>5.2.1</ao.version>
         <!-- https://bitbucket.org/atlassian/platform-module-usage/wiki/atlassian-sal.md -->
