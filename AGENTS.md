@@ -51,7 +51,7 @@
 - If you change only Java service logic, unit tests in `src/test/java/com/...` are the first check.
 - If you change AO queries, Jira integration points, or plugin wiring, run integration tests as well.
 - Unit tests reach Jira state through the protected seams `resolveIssue(String)` and `resolveAllIssueKeys(Issue)` on `PullRequestServiceImpl` (overridden by a test subclass) — extend those seams for new Jira lookups instead of trying to mock `ComponentAccessor` statics.
-- Known gap (as of Sep 2026): the 2.x line has never been smoke-tested with `atlas-run` against Jira 11.3 — plugin enablement, a live POST, and the four screens rendering are unverified at runtime. Remove this note once that has been done.
+- Runtime-verified on Jira 11.3.10 via `atlas-run` (2026-09-02): plugin enables, REST endpoint handles create/upsert/validation/authz (201/400/403/404), Code tab renders with escaping intact, profile toggle round-trips its XSRF token, admin screen saves via `!save.jspa` and the pre-2.0 URL still renders. Still unverified: the agile board web panel (`atl.gh.issue.details.tab` — needs a Jira Software instance with a board) and actual email delivery (needs a mail server).
 
 ## Release Process
 - Versioning: bump `<version>` in `pom.xml` (plain `X.Y.Z` for production, `X.Y.Z-RC1` for release candidates). Note v2.0.0 is a known-bad release (the as-contributed Jira 11 migration that cannot install); v2.0.1 is the first working 2.x.
