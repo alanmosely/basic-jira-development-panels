@@ -47,6 +47,8 @@
   - `atlas-mvn test`
   - `atlas-mvn integration-test`
 - **Set `JAVA_HOME` to a JDK 21 before any `atlas-mvn` command** — the system default java is often older. The failure signature for a wrong JDK is `class file has wrong version 65.0, should be 61.0` on every jira-api class; that means your JDK is too old, not that the dependency is broken.
+- CI (`.github/workflows/build.yml`) builds every PR and master push with **plain `mvn` on JDK 21 — no Atlassian SDK**. The pom must therefore stay resolvable without the SDK's settings.xml: that is why `jenkins-releases` is declared in the pom (jira-api transitively needs `commons-httpclient:3.1-jenkins-3`, hosted only there). If CI fails with `Could not find artifact` while `atlas-mvn` works locally, a dependency is leaking in through SDK settings — declare its repository in the pom.
+- `atlas-run` shuts down as soon as stdin reaches EOF (AMPS treats it as Ctrl+D), so in a headless or background shell keep stdin open, e.g. `tail -f /dev/null | atlas-run`. The dev instance serves at `http://localhost:2990/jira` (admin/admin) and keeps its home under `target/` between runs; `atlas-clean` resets it.
 - Do not use `atlas-integration-test` here; the README explicitly says it runs the wrong product (`refapp`) instead of Jira.
 - If you change only Java service logic, unit tests in `src/test/java/com/...` are the first check.
 - If you change AO queries, Jira integration points, or plugin wiring, run integration tests as well.

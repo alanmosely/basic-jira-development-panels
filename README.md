@@ -1,5 +1,7 @@
 # Basic Jira Development Panels Plugin
 
+[![Build](https://github.com/alanmosely/basic-jira-development-panels/actions/workflows/build.yml/badge.svg)](https://github.com/alanmosely/basic-jira-development-panels/actions/workflows/build.yml)
+
 The Basic Jira Development Panels plugin adds a new 'Code' tab to the Jira issue view. It exposes an API endpoint that allows you to create and update Pull Request entries that are shown in this 'Code' tab on Jira issues.
 
 If you can connect your source code management tool to Jira, you should totally use the [out of the box Development Tools functionality](https://confluence.atlassian.com/jirasoftwareserver/configuring-development-tools-938845350.html). This plugin was written for organisations where directly connecting to a source code management tool is not desired or possible.
@@ -39,6 +41,16 @@ curl -X POST -H "Content-Type: application/json" \
 
 > **Note (Jira 11):** Jira 11 disables basic authentication by default. Use a [Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) instead (`-H "Authorization: Bearer <token>"`), or re-enable basic authentication in the Jira administration settings.
 
+Responses:
+
+* `201` — the entry was created, or updated if one already existed for the same issue and `url`
+* `400` — missing `name`, or `url`/`repoUrl` is not an http(s) URL (the response body says which)
+* `403` — an API user is configured and the caller is someone else
+* `404` — the issue key does not exist, or the caller cannot browse the issue (identical on purpose, so issue keys cannot be probed)
+* `500` — the entry could not be saved; safe to retry
+
+Unknown JSON fields are ignored, so you can post webhook payloads that carry extra properties. The issue key is case-sensitive.
+
 ## Administration
 
 Once the plugin is installed, you can configure the following settings in the Jira administration panel (under Administration > System > Mail > Code Notifications):
@@ -52,7 +64,9 @@ Once the plugin is installed, you can configure the following settings in the Ji
 
 This plugin is built using the [Atlassian Plugin SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/).
 
-Version 2.x targets **Jira Data Center 11.x** and **requires JDK 21** to build and run (Jira 11 supports Java 21 only). For Jira 9/10 instances, use the 1.0.x releases.
+Version 2.x targets **Jira Data Center 11.x** and **requires JDK 21** to build and run (Jira 11 supports Java 21 only). Use v2.0.1 or later — v2.0.0 cannot install on Jira 11. For Jira 9/10 instances, use the 1.0.x releases.
+
+Set `JAVA_HOME` to a JDK 21 before running any of the commands below; if the build fails with `class file has wrong version 65.0, should be 61.0`, your JDK is too old.
 
 Once you have installed the SDK you can use the following commands:
 
