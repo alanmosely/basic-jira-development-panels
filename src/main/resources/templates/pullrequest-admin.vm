@@ -11,7 +11,7 @@
         <p>In cases of performance issues, disabling this means all funcitonality to calculate and send email notifications will be skipped.</p>
     </div>
 
-    <form action="$req.contextPath/secure/admin/PullRequestAdmin.jspa" method="post" class="aui long-label unsectioned">
+    <form action="$req.contextPath/secure/admin/PullRequestAdmin!save.jspa" method="post" class="aui long-label unsectioned">
         <input type="hidden" name="atl_token" value="$atl_token"/>
         <div class="field-group">
             <label>

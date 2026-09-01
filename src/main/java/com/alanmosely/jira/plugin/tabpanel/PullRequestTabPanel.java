@@ -3,8 +3,8 @@ package com.alanmosely.jira.plugin.tabpanel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class PullRequestTabPanel extends AbstractIssueTabPanel {
 
         List<IssueAction> actions = new ArrayList<>();
         try {
-            List<PullRequestModel> pullRequests = pullRequestService.getPullRequests(issue.getKey());
+            List<PullRequestModel> pullRequests = pullRequestService.getPullRequests(issue);
             log.debug("Retrieved {} pull requests for issue {}", pullRequests != null ? pullRequests.size() : 0,
                     issue.getKey());
 
@@ -57,7 +57,7 @@ public class PullRequestTabPanel extends AbstractIssueTabPanel {
         log.debug("Entering showPanel with issue: {}, remoteUser: {}", issue, remoteUser);
 
         try {
-            boolean hasPullRequests = pullRequestService.hasPullRequests(issue.getKey());
+            boolean hasPullRequests = pullRequestService.hasPullRequests(issue);
             log.debug("Issue {} has pull requests: {}", issue.getKey(), hasPullRequests);
             return hasPullRequests;
         } catch (Exception e) {

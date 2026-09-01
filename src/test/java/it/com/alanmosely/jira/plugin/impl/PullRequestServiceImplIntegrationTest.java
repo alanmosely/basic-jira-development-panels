@@ -38,12 +38,17 @@ public class PullRequestServiceImplIntegrationTest {
 
         pluginSettings.put(PLUGIN_STORAGE_KEY + ".notificationsEnabled", "true");
 
-        pullRequestService = new PullRequestServiceImpl(activeObjects, pluginSettingsFactory);
+        pullRequestService = new PullRequestServiceImpl(activeObjects, pluginSettingsFactory,
+                ComponentAccessor.getOSGiComponentInstanceOfType(
+                        com.atlassian.sal.api.transaction.TransactionTemplate.class));
     }
 
     @After
     public void tearDown() {
         pluginSettings.remove(PLUGIN_STORAGE_KEY + ".notificationsEnabled");
+        // Remove rows created by the tests so assertions do not depend on execution order.
+        activeObjects.deleteWithSQL(com.alanmosely.jira.plugin.ao.PullRequestEntity.class,
+                "ISSUE_KEY LIKE ?", "TEST-%");
     }
 
     @Test

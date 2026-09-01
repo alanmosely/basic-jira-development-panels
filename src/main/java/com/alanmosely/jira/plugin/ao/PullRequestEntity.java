@@ -3,14 +3,17 @@ package com.alanmosely.jira.plugin.ao;
 import java.util.Date;
 
 import net.java.ao.Entity;
+import net.java.ao.schema.Indexed;
 import net.java.ao.schema.Table;
 
 @Table("PullRequest")
 public interface PullRequestEntity extends Entity {
+    @Indexed
     String getIssueKey();
 
     void setIssueKey(String issueKey);
 
+    @Indexed
     Long getIssueId();
 
     void setIssueId(Long issueId);
@@ -19,6 +22,7 @@ public interface PullRequestEntity extends Entity {
 
     void setName(String name);
 
+    @Indexed
     String getUrl();
 
     void setUrl(String url);
