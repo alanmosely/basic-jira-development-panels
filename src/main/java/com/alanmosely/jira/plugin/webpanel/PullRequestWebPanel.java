@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class PullRequestWebPanel extends AbstractJiraContextProvider {
         log.debug("Entering getContextMap with issue: {}, applicationUser: {}", issue.getKey(), applicationUser);
 
         try {
-            List<PullRequestModel> pullRequests = pullRequestService.getPullRequests(issue.getKey());
+            List<PullRequestModel> pullRequests = pullRequestService.getPullRequests(issue);
             log.debug("Retrieved {} pull requests for issue {}",
                     (pullRequests != null ? pullRequests.size() : 0),
                     issue.getKey());

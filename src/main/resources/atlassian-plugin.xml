@@ -59,7 +59,22 @@
     <web-item key="pull-request-admin-link" name="Pull Request Plugin Configuration" section="top_system_section/mail_section" weight="500">
         <description>Notifications Admin link</description>
         <label>Code Notifications</label>
-        <link linkId="pull-request-admin-link-id">/secure/admin/PullRequestAdmin.jspa</link>
+        <link linkId="pull-request-admin-link-id">/secure/admin/PullRequestAdmin!default.jspa</link>
     </web-item>
+
+    <!-- From Jira 10, method invocations in Velocity templates are blocked unless allowlisted. -->
+    <velocity-allowlist key="pull-request-velocity-allowlist" name="Pull Request Velocity Allowlist">
+        <description>Methods the plugin's Velocity templates are allowed to invoke</description>
+        <method>com.alanmosely.jira.plugin.admin.PullRequestAdminAction#areNotificationsEnabled()</method>
+        <method>com.alanmosely.jira.plugin.admin.PullRequestAdminAction#getApiUser()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getName()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getUrl()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getStatus()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getRepoName()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getRepoUrl()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getBranchName()</method>
+        <method>com.alanmosely.jira.plugin.api.PullRequestModel#getUpdated()</method>
+        <method>com.atlassian.jira.web.util.OutlookDate#format(java.util.Date)</method>
+    </velocity-allowlist>
 
 </atlassian-plugin>

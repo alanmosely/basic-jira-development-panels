@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.security.xsrf.XsrfTokenGenerator;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserPropertyManager;
+import com.atlassian.jira.web.ExecutingHttpRequest;
 import com.atlassian.plugin.web.ContextProvider;
 import com.opensymphony.module.propertyset.PropertyException;
 import com.opensymphony.module.propertyset.PropertySet;
@@ -51,8 +53,26 @@ public class PullRequestContextProvider implements ContextProvider {
         String baseUrl = ComponentAccessor.getApplicationProperties().getString("jira.baseurl");
         String pluginUrl = baseUrl + "/plugins/servlet/pullrequest-notifications";
         newContext.put("pluginUrl", pluginUrl);
+        newContext.put("atlToken", currentXsrfToken());
 
         log.debug("Exiting getContextMap with newContext: {}", newContext);
         return newContext;
+    }
+
+    private String currentXsrfToken() {
+        try {
+            XsrfTokenGenerator tokenGenerator = ComponentAccessor.getComponent(XsrfTokenGenerator.class);
+            if (tokenGenerator == null || ExecutingHttpRequest.get() == null) {
+                // An empty token renders a form whose submit will be rejected by the
+                // servlet's XSRF check — make the cause findable at render time.
+                log.warn("No XSRF token available while rendering the notifications panel; "
+                        + "the notification toggle will be rejected until the page is reloaded in a request context");
+                return "";
+            }
+            return tokenGenerator.generateToken(ExecutingHttpRequest.get());
+        } catch (Exception e) {
+            log.warn("Unable to generate XSRF token for notifications panel", e);
+            return "";
+        }
     }
 }

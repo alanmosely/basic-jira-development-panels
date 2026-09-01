@@ -2,8 +2,8 @@ package com.alanmosely.jira.plugin.conditions;
 
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class PullRequestExistsCondition implements Condition {
         }
 
         try {
-            boolean hasPullRequests = pullRequestService.hasPullRequests(issue.getKey());
+            boolean hasPullRequests = pullRequestService.hasPullRequests(issue);
             log.debug("Issue {} has pull requests: {}", issue.getKey(), hasPullRequests);
             return hasPullRequests;
         } catch (Exception e) {

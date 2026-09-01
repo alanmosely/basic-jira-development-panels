@@ -22,7 +22,7 @@ No email notifications are sent when a Pull Request is created or updated by def
 
 ### Creating/updating Pull Requests against Jira issues
 
-To create/update a Pull Request entry against the `FOO-1` issue on a Jira instance @ <http://localhost:2990/jira>, you can use the following `curl` command (the Jira user does not require any special permissions):
+To create/update a Pull Request entry against the `FOO-1` issue on a Jira instance @ <http://localhost:2990/jira>, you can use the following `curl` command (the Jira user must be able to browse the issue; `name` and an http(s) `url` are required):
 
 ```bash
 curl -X POST -H "Content-Type: application/json" \
@@ -37,6 +37,8 @@ curl -X POST -H "Content-Type: application/json" \
      }' http://localhost:2990/jira/rest/pullrequest/1.0/code/FOO-1
 ```
 
+> **Note (Jira 11):** Jira 11 disables basic authentication by default. Use a [Personal Access Token](https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html) instead (`-H "Authorization: Bearer <token>"`), or re-enable basic authentication in the Jira administration settings.
+
 ## Administration
 
 Once the plugin is installed, you can configure the following settings in the Jira administration panel (under Administration > System > Mail > Code Notifications):
@@ -48,7 +50,9 @@ Once the plugin is installed, you can configure the following settings in the Ji
 
 ## Development
 
-This plugin is built using the [Atlassian Plugin SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/) and **requires JDK 11** to build and run.
+This plugin is built using the [Atlassian Plugin SDK](https://developer.atlassian.com/server/framework/atlassian-sdk/set-up-the-atlassian-plugin-sdk-and-build-a-project/).
+
+Version 2.x targets **Jira Data Center 11.x** and **requires JDK 21** to build and run (Jira 11 supports Java 21 only). For Jira 9/10 instances, use the 1.0.x releases.
 
 Once you have installed the SDK you can use the following commands:
 

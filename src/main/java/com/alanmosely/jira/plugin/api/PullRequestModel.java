@@ -2,12 +2,11 @@ package com.alanmosely.jira.plugin.api;
 
 import java.util.Date;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@XmlRootElement(name = "pullRequest")
-@XmlAccessorType(XmlAccessType.FIELD)
+// REST v2's Jackson mapper rejects unknown JSON fields with a 400 by default;
+// integrations often post payloads with extra fields, so accept and ignore them.
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PullRequestModel {
 
     private String name;

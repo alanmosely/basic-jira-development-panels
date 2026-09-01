@@ -16,3 +16,4 @@ bin
 work
 atlassian-ide-plugin.xml
 .work/
+.m2/

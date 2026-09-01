@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.xsrf.XsrfTokenGenerator;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.jira.user.UserPropertyManager;
 import com.opensymphony.module.propertyset.PropertyException;
@@ -20,16 +21,13 @@ import com.opensymphony.module.propertyset.PropertySet;
 public class PullRequestNotificationsServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(PullRequestNotificationsServlet.class);
 
-    private final JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
-    private final UserPropertyManager userPropertyManager = ComponentAccessor.getUserPropertyManager();
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("Entering doPost method");
 
+        JiraAuthenticationContext authenticationContext = ComponentAccessor.getJiraAuthenticationContext();
         ApplicationUser currentUser = authenticationContext.getLoggedInUser();
-        log.debug("Current user: {}", currentUser);
 
         if (currentUser == null) {
             log.warn("No user is logged in. Sending forbidden response.");
@@ -37,13 +35,19 @@ public class PullRequestNotificationsServlet extends HttpServlet {
             return;
         }
 
-        String codeNotificationsParam = request.getParameter("codeNotifications");
-        log.debug("Received codeNotifications parameter: {}", codeNotificationsParam);
+        XsrfTokenGenerator tokenGenerator = ComponentAccessor.getComponent(XsrfTokenGenerator.class);
+        String token = request.getParameter("atl_token");
+        if (tokenGenerator == null || !tokenGenerator.validateToken(request, token)) {
+            log.warn("Rejected notification preference change with missing or invalid XSRF token for user {}",
+                    currentUser.getUsername());
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Missing or invalid XSRF token");
+            return;
+        }
 
-        boolean codeNotifications = "true".equals(codeNotificationsParam);
-        log.debug("Parsed codeNotifications value: {}", codeNotifications);
+        boolean codeNotifications = "true".equals(request.getParameter("codeNotifications"));
 
         try {
+            UserPropertyManager userPropertyManager = ComponentAccessor.getUserPropertyManager();
             PropertySet userProperties = userPropertyManager.getPropertySet(currentUser);
             userProperties.setBoolean("com.alanmosely.jira.plugin.codeNotifications", codeNotifications);
             log.info("Set codeNotifications to {} for user {}", codeNotifications, currentUser.getUsername());
@@ -53,10 +57,6 @@ public class PullRequestNotificationsServlet extends HttpServlet {
             return;
         }
 
-        String redirectUrl = request.getContextPath() + "/secure/ViewProfile.jspa";
-        log.debug("Redirecting to {}", redirectUrl);
-        response.sendRedirect(redirectUrl);
-
-        log.debug("Exiting doPost method");
+        response.sendRedirect(request.getContextPath() + "/secure/ViewProfile.jspa");
     }
 }
