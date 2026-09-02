@@ -13,10 +13,19 @@ public interface PullRequestService {
     boolean hasPullRequests(String issueKey);
 
     /**
-     * Overloads for callers that already hold the Issue (panels, conditions):
-     * they skip the key-to-issue lookup that the String versions must perform.
+     * Overloads for callers that already hold the Issue (the REST resource, panels,
+     * conditions): they skip the key-to-issue lookup that the String versions must
+     * perform. The issue must not be null.
      */
+    void createPullRequest(Issue issue, PullRequestModel model);
+
     List<PullRequestModel> getPullRequests(Issue issue);
 
     boolean hasPullRequests(Issue issue);
+
+    /**
+     * Deletes every stored pull request for the issue whose URL matches
+     * {@code url} (compared trimmed). Returns false when nothing matched.
+     */
+    boolean deletePullRequest(Issue issue, String url);
 }

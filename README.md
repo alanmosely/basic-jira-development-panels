@@ -24,7 +24,7 @@ No email notifications are sent when a Pull Request is created or updated by def
 
 ### Creating/updating Pull Requests against Jira issues
 
-To create/update a Pull Request entry against the `FOO-1` issue on a Jira instance @ <http://localhost:2990/jira>, you can use the following `curl` command (the Jira user must be able to browse the issue; `name` and an http(s) `url` are required):
+To create/update a Pull Request entry against the `FOO-1` issue on a Jira instance @ <http://localhost:2990/jira>, you can use the following `curl` command (the caller must be authenticated and able to browse the issue; `name` and an http(s) `url` are required; every field is limited to 255 characters and is stored trimmed):
 
 ```bash
 curl -X POST -H "Content-Type: application/json" \
@@ -44,12 +44,31 @@ curl -X POST -H "Content-Type: application/json" \
 Responses:
 
 * `201` — the entry was created, or updated if one already existed for the same issue and `url`
-* `400` — missing `name`, or `url`/`repoUrl` is not an http(s) URL (the response body says which)
+* `400` — missing `name`, `url`/`repoUrl` is not an http(s) URL, or a field exceeds 255 characters (the response body says which)
+* `401` — the caller is not authenticated or holds no Jira license (creates and deletes require a logged-in, licensed user)
 * `403` — an API user is configured and the caller is someone else
 * `404` — the issue key does not exist, or the caller cannot browse the issue (identical on purpose, so issue keys cannot be probed)
 * `500` — the entry could not be saved; safe to retry
 
-Unknown JSON fields are ignored, so you can post webhook payloads that carry extra properties. The issue key is case-sensitive.
+Validation and authorization failures (`400`/`401`/`403`) carry a JSON body in Jira's usual shape: `{"errorMessages": ["..."]}`; `404` and `500` responses are deliberately bodyless.
+
+Unknown JSON fields are ignored, so you can post webhook payloads that carry extra properties. The issue key is case-sensitive. Blank optional fields are treated exactly like omitted ones (stored and returned as null). If the payload includes an `updated` timestamp (epoch milliseconds) it is stored and used for ordering; otherwise the arrival time is used.
+
+### Reading and deleting Pull Requests
+
+`GET` returns the stored entries for an issue (visible to anyone who can browse the issue):
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:2990/jira/rest/pullrequest/1.0/code/FOO-1
+```
+
+`DELETE` removes the entry whose `url` matches (same authorization rules as `POST`; returns `204` on success, `404` when nothing matches). URL-encode the `url` parameter — an unencoded value containing `+`, `&` or `%` is silently decoded to something else and matches nothing:
+
+```bash
+curl -X DELETE -G --data-urlencode "url=https://github.com/repo/pull/123" \
+     -H "Authorization: Bearer <token>" \
+     http://localhost:2990/jira/rest/pullrequest/1.0/code/FOO-1
+```
 
 ## Administration
 

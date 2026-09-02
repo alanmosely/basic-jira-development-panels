@@ -1,8 +1,6 @@
-#set($notificationPreference = "")
+#set($notificationPreference = "true")
 #if($codeNotifications)
     #set($notificationPreference = "false")
-#else
-    #set($notificationPreference = "true")
 #end
 
 <div id="notifications-profile-fragment" class="module">
@@ -10,35 +8,21 @@
         <input type="hidden" name="atl_token" value="$atlToken"/>
         <input type="hidden" name="codeNotifications" id="codeNotifications" value="$notificationPreference"/>
         <div class="mod-header">
-            <h3>Notifications</h3>
+            <h3>$i18n.getText("bjdp.profile.header")</h3>
         </div>
         <br/>
         <div class="mod-content">
             <div class="item-details">
                 <dl>
-                    <dt style="vertical-align: baseline;">Code:</dt>
+                    <dt style="vertical-align: baseline;">$i18n.getText("bjdp.profile.code")</dt>
                     <dd>
-                        <a href="#" id="toggleNotificationsLink" aria-pressed="$codeNotifications">
-                            #if($codeNotifications)
-                                Disable Code notifications
-                            #else
-                                Enable Code notifications
-                            #end
-                        </a>
+                        ## A real submit button (not a JS-driven anchor) so the toggle works without JavaScript.
+                        <button type="submit" class="aui-button aui-button-link" id="toggleNotificationsLink">
+                            #if($codeNotifications)$i18n.getText("bjdp.profile.disable")#else$i18n.getText("bjdp.profile.enable")#end
+                        </button>
                     </dd>
                 </dl>
             </div>
         </div>
     </form>
 </div>
-
-<script type="text/javascript">
-    (function($) {
-        $(document).ready(function() {
-            $('#toggleNotificationsLink').click(function(e) {
-                e.preventDefault(); 
-                $('#notificationsForm').submit();
-            });
-        });
-    })(AJS.$);
-</script>
