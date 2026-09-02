@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alanmosely.jira.plugin.util.SettingsKeys;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.xsrf.XsrfTokenGenerator;
@@ -49,7 +50,7 @@ public class PullRequestNotificationsServlet extends HttpServlet {
         try {
             UserPropertyManager userPropertyManager = ComponentAccessor.getUserPropertyManager();
             PropertySet userProperties = userPropertyManager.getPropertySet(currentUser);
-            userProperties.setBoolean("com.alanmosely.jira.plugin.codeNotifications", codeNotifications);
+            userProperties.setBoolean(SettingsKeys.CODE_NOTIFICATIONS_USER_PROPERTY, codeNotifications);
             log.info("Set codeNotifications to {} for user {}", codeNotifications, currentUser.getUsername());
         } catch (PropertyException e) {
             log.error("Error setting codeNotifications for user {}", currentUser.getUsername(), e);

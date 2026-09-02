@@ -2,25 +2,25 @@
     <table class="aui aui-table-list">
         <thead>
             <tr>
-                <th id="pr">Pull Request</th>
-                <th id="repo">Repository</th>
-                <th id="branch">Branch</th>
-                <th id="status">Status</th>
-                <th id="updated">Updated</th>
+                <th id="pr">$i18n.getText("bjdp.panel.header.pullrequest")</th>
+                <th id="repo">$i18n.getText("bjdp.panel.header.repository")</th>
+                <th id="branch">$i18n.getText("bjdp.panel.header.branch")</th>
+                <th id="status">$i18n.getText("bjdp.panel.header.status")</th>
+                <th id="updated">$i18n.getText("bjdp.panel.header.updated")</th>
             </tr>
         </thead>
         <tbody>
             #foreach ($pullRequest in $pullRequests)
                 <tr>
-                    <td headers="pr">#if ($pullRequest.url)<a href="$pullRequest.url" target="_blank" rel="noopener noreferrer">$pullRequest.name</a>#else$pullRequest.name#end</td>
-                    <td headers="repo">#if ($pullRequest.repoUrl)<a href="$pullRequest.repoUrl" target="_blank" rel="noopener noreferrer">$pullRequest.repoName</a>#else$pullRequest.repoName#end</td>
-                    <td headers="branch">$pullRequest.branchName</td>
-                    <td headers="status">$pullRequest.status</td>
+                    <td headers="pr">#if ($pullRequest.url)<a href="$pullRequest.url" target="_blank" rel="noopener noreferrer">$!pullRequest.name</a>#else$!pullRequest.name#end</td>
+                    <td headers="repo">#if ($pullRequest.repoUrl)<a href="$pullRequest.repoUrl" target="_blank" rel="noopener noreferrer">$!pullRequest.repoName</a>#else$!pullRequest.repoName#end</td>
+                    <td headers="branch">$!pullRequest.branchName</td>
+                    <td headers="status">$!pullRequest.status</td>
                     <td headers="updated">#if ($pullRequest.updated)$outlookdate.format($pullRequest.updated)#end</td>
                 </tr>
             #end
         </tbody>
     </table>
 #else
-    <p>No pull requests associated with this issue.</p>
+    <p>$i18n.getText("bjdp.panel.empty")</p>
 #end

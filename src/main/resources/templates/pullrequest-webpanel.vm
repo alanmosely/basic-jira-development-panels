@@ -3,14 +3,14 @@
         <tbody>
             #foreach ($pullRequest in $pullRequests)
                 <tr>
-                    <td headers="pr">#if ($pullRequest.url)<a href="$pullRequest.url" target="_blank" rel="noopener noreferrer">$pullRequest.name</a>#else$pullRequest.name#end</td>
-                    <td headers="repo">#if ($pullRequest.repoUrl)<a href="$pullRequest.repoUrl" target="_blank" rel="noopener noreferrer">$pullRequest.repoName</a>#else$pullRequest.repoName#end</td>
-                    <td headers="branch">$pullRequest.branchName</td>
-                    <td headers="status">$pullRequest.status</td>
+                    <td>#if ($pullRequest.url)<a href="$pullRequest.url" target="_blank" rel="noopener noreferrer">$!pullRequest.name</a>#else$!pullRequest.name#end</td>
+                    <td>#if ($pullRequest.repoUrl)<a href="$pullRequest.repoUrl" target="_blank" rel="noopener noreferrer">$!pullRequest.repoName</a>#else$!pullRequest.repoName#end</td>
+                    <td>$!pullRequest.branchName</td>
+                    <td>$!pullRequest.status</td>
                 </tr>
             #end
         </tbody>
     </table>
 #else
-    <p>There are no pull requests.</p>
+    <p>$i18n.getText("bjdp.panel.empty")</p>
 #end

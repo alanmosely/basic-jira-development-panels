@@ -3,8 +3,11 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-        <param name="plugin-icon">images/pluginLogo.png</param>
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
     </plugin-info>
+
+    <resource type="i18n" name="i18n" location="i18n.basic-jira-development-panels"/>
 
     <ao key="pull-request-ao" name="Pull Request Entity">
         <description>Entity for storing pull requests</description>
@@ -16,22 +19,23 @@
         <resource key="pullRequestResource" name="PullRequestResource" type="java" location="com.alanmosely.jira.plugin.api.PullRequestResource"/>
     </rest>
 
+    <!-- No condition here: PullRequestTabPanel.showPanel already performs the same
+         existence check, and a condition would run the query a second time on every
+         issue view. -->
     <issue-tabpanel key="pull-request-tabpanel" name="Pull Request Tab Panel" class="com.alanmosely.jira.plugin.tabpanel.PullRequestTabPanel">
         <description>Panel that displays associated pull requests on issues</description>
-        <label>Code</label>
+        <label key="bjdp.tabpanel.label"/>
         <order>100</order>
         <supports-ajax-load>true</supports-ajax-load>
         <resource name="view" type="velocity" location="/templates/pullrequest-tabpanel.vm"/>
-        <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
     </issue-tabpanel>
 
     <web-panel key="pull-request-webpanel" name="Pull Request Web Panel" location="atl.gh.issue.details.tab" weight="1000">
         <description>Panel that displays associated pull requests on issues in Jira Agile view</description>
         <context-provider class="com.alanmosely.jira.plugin.webpanel.PullRequestWebPanel"/>
         <resource name="view" type="velocity" location="/templates/pullrequest-webpanel.vm"/>
-        <resource name="iconPullRequest" type="download" location="/images/code.png"/>
-        <label>Code</label>
-        <tooltip>View associated pull requests</tooltip>
+        <label key="bjdp.webpanel.label"/>
+        <tooltip key="bjdp.webpanel.tooltip"/>
         <condition class="com.alanmosely.jira.plugin.conditions.PullRequestExistsCondition"/>
     </web-panel>
 
@@ -49,7 +53,10 @@
     <webwork1 key="pull-request-admin" name="Pull Request Admin Action">
         <description>Admin actions</description>
         <actions>
-            <action name="com.alanmosely.jira.plugin.admin.PullRequestAdminAction" alias="PullRequestAdmin" allowedMethods="GET,POST">
+            <!-- roles-required guards the action at the descriptor layer; the action
+                 additionally checks ADMINISTER itself because websudo alone is
+                 re-authentication, not authorization. -->
+            <action name="com.alanmosely.jira.plugin.admin.PullRequestAdminAction" alias="PullRequestAdmin" roles-required="admin" allowedMethods="GET,POST">
                 <view name="input">/templates/pullrequest-admin.vm</view>
                 <view name="success">/templates/pullrequest-admin.vm</view>
             </action>
@@ -58,7 +65,7 @@
 
     <web-item key="pull-request-admin-link" name="Pull Request Plugin Configuration" section="top_system_section/mail_section" weight="500">
         <description>Notifications Admin link</description>
-        <label>Code Notifications</label>
+        <label key="bjdp.admin.link.label"/>
         <link linkId="pull-request-admin-link-id">/secure/admin/PullRequestAdmin!default.jspa</link>
     </web-item>
 
@@ -75,6 +82,7 @@
         <method>com.alanmosely.jira.plugin.api.PullRequestModel#getBranchName()</method>
         <method>com.alanmosely.jira.plugin.api.PullRequestModel#getUpdated()</method>
         <method>com.atlassian.jira.web.util.OutlookDate#format(java.util.Date)</method>
+        <method>com.atlassian.jira.util.I18nHelper#getText(java.lang.String)</method>
     </velocity-allowlist>
 
 </atlassian-plugin>

@@ -4,48 +4,52 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alanmosely.jira.plugin.api.PullRequestModel;
 import com.atlassian.jira.plugin.issuetabpanel.AbstractIssueAction;
 import com.atlassian.jira.plugin.issuetabpanel.IssueTabPanelModuleDescriptor;
 
 public class PullRequestIssueAction extends AbstractIssueAction {
 
-    private static final Logger log = LoggerFactory.getLogger(PullRequestIssueAction.class);
-
     private final List<PullRequestModel> pullRequests;
+    private final Date timePerformed;
 
     public PullRequestIssueAction(IssueTabPanelModuleDescriptor descriptor, List<PullRequestModel> pullRequests) {
         super(descriptor);
         this.pullRequests = pullRequests;
-        log.debug("PullRequestIssueAction initialized with {} pull requests",
-                pullRequests != null ? pullRequests.size() : 0);
+        this.timePerformed = newestUpdate(pullRequests);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void populateVelocityParams(@SuppressWarnings("rawtypes") Map params) {
-        log.debug("Populating Velocity parameters with pull requests");
-        try {
-            params.put("pullRequests", pullRequests);
-            log.debug("Added pullRequests to Velocity params");
-        } catch (Exception e) {
-            log.error("Error populating Velocity parameters", e);
-        }
+        params.put("pullRequests", pullRequests);
     }
 
+    /**
+     * The Activity "All" tab orders entries by this timestamp; report the newest
+     * pull request update rather than the render time so the entry doesn't always
+     * sort as "just now".
+     */
     @Override
     public Date getTimePerformed() {
-        Date timePerformed = new Date();
-        log.debug("getTimePerformed called, returning {}", timePerformed);
         return timePerformed;
+    }
+
+    private static Date newestUpdate(List<PullRequestModel> pullRequests) {
+        Date newest = null;
+        if (pullRequests != null) {
+            for (PullRequestModel pullRequest : pullRequests) {
+                Date updated = pullRequest.getUpdated();
+                if (updated != null && (newest == null || updated.after(newest))) {
+                    newest = updated;
+                }
+            }
+        }
+        return newest != null ? newest : new Date();
     }
 
     @Override
     public boolean isDisplayActionAllTab() {
-        log.debug("isDisplayActionAllTab called, returning true");
         return true;
     }
 }

@@ -1,34 +1,32 @@
 <html>
 <head>
-    <title>Basic Jira Development Panels Configuration</title>
+    <title>$i18n.getText("bjdp.admin.title")</title>
     <meta name="decorator" content="atl.admin">
 </head>
 <body class="page-type-admin">
-    <h2>Basic Jira Development Panels Configuration</h2>
+    <h2>$i18n.getText("bjdp.admin.title")</h2>
 
     <div id="configuration-info" class="aui-message aui-message-info">
-        <p><b>Use this option to disable email notifications for the Code panel.</b></p>
-        <p>In cases of performance issues, disabling this means all funcitonality to calculate and send email notifications will be skipped.</p>
+        <p><b>$i18n.getText("bjdp.admin.info.heading")</b></p>
+        <p>$i18n.getText("bjdp.admin.info.detail")</p>
     </div>
 
     <form action="$req.contextPath/secure/admin/PullRequestAdmin!save.jspa" method="post" class="aui long-label unsectioned">
         <input type="hidden" name="atl_token" value="$atl_token"/>
         <div class="field-group">
-            <label>
-                Enable Email Notifications
-            </label>
-            <input type="checkbox" name="notificationsEnabled" style="vertical-align: middle;" value="true" #if($action.areNotificationsEnabled()) checked="checked" #end/>
-            <span title="Whether to enable email notifications for new/updated Pull Requests linked to Jira issues" class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">help</span>
+            <label for="notificationsEnabled">$i18n.getText("bjdp.admin.notifications.label")</label>
+            <input type="checkbox" name="notificationsEnabled" id="notificationsEnabled" style="vertical-align: middle;" value="true" #if($action.areNotificationsEnabled()) checked="checked" #end/>
+            <span title="$i18n.getText('bjdp.admin.notifications.help')" class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">$i18n.getText("bjdp.admin.help")</span>
         </div>
         <br/>
         <div class="field-group">
-            <label for="apiUser">Restrict API to User</label>
-            <input type="text" name="apiUser" id="apiUser" value="$action.getApiUser()" />
-            <span title="Optionally restrict the creation/update of pull requests via the API to a user; leave blank to allow any user." class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">help</span>
+            <label for="apiUser">$i18n.getText("bjdp.admin.apiuser.label")</label>
+            <input type="text" name="apiUser" id="apiUser" value="$!action.getApiUser()" />
+            <span title="$i18n.getText('bjdp.admin.apiuser.help')" class="aui-icon aui-icon-small aui-iconfont-help icon-default"></span><span class="content">$i18n.getText("bjdp.admin.help")</span>
         </div>
         <br/>
         <div class="field-group">
-            <input type="submit" class="aui-button aui-button-primary" value="Save"/>
+            <input type="submit" class="aui-button aui-button-primary" value="$i18n.getText('bjdp.admin.save')"/>
         </div>
     </form>
 </body>

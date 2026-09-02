@@ -7,6 +7,9 @@ on:
     branches: [master]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,6 +26,14 @@ jobs:
 
       - name: Build and run unit tests
         run: mvn -B clean package
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
+          if-no-files-found: ignore
 
       - name: Upload plugin jar
         uses: actions/upload-artifact@v4

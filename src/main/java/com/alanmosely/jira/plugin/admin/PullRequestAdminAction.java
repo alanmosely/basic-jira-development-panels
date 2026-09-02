@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alanmosely.jira.plugin.util.SettingsKeys;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.permission.GlobalPermissionKey;
 import com.atlassian.jira.security.request.RequestMethod;
 import com.atlassian.jira.security.request.SupportedMethods;
 import com.atlassian.jira.security.xsrf.RequiresXsrfCheck;
@@ -32,6 +34,9 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     @SupportedMethods({ RequestMethod.GET })
     public String doDefault() {
         logger.debug("Entering doDefault()");
+        if (!hasAdminPermission()) {
+            return PERMISSION_VIOLATION_RESULT;
+        }
         loadSettings();
         return INPUT;
     }
@@ -45,6 +50,9 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     @SupportedMethods({ RequestMethod.GET })
     public String doExecute() {
         logger.debug("Entering doExecute()");
+        if (!hasAdminPermission()) {
+            return PERMISSION_VIOLATION_RESULT;
+        }
         loadSettings();
         return INPUT;
     }
@@ -53,6 +61,9 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
     @RequiresXsrfCheck
     public String doSave() {
         logger.debug("Entering doSave()");
+        if (!hasAdminPermission()) {
+            return PERMISSION_VIOLATION_RESULT;
+        }
         pluginSettingsFactory.createGlobalSettings().put(SettingsKeys.NOTIFICATIONS_ENABLED_KEY,
                 Boolean.toString(notificationsEnabled));
 
@@ -60,7 +71,20 @@ public class PullRequestAdminAction extends JiraWebActionSupport {
                 StringUtils.isBlank(apiUser) ? null : apiUser.trim());
         logger.debug("Saved notificationsEnabled={}, apiUser={}", notificationsEnabled, apiUser);
 
+        // Re-read what was persisted so the success view always renders stored state
+        // (a param-less POST would otherwise render null/default field values).
+        loadSettings();
         return SUCCESS;
+    }
+
+    /**
+     * Websudo is re-authentication, not authorization, and can be disabled
+     * instance-wide (jira.websudo.is.disabled), so the action verifies global admin
+     * permission itself in addition to roles-required="admin" in the descriptor.
+     */
+    private boolean hasAdminPermission() {
+        return ComponentAccessor.getGlobalPermissionManager()
+                .hasPermission(GlobalPermissionKey.ADMINISTER, getLoggedInUser());
     }
 
     private void loadSettings() {
