@@ -28,6 +28,7 @@ import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.config.properties.APKeys;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.mail.Email;
+import com.atlassian.jira.permission.ProjectPermissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.mail.queue.SingleMailQueueItem;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -160,7 +161,7 @@ public class PullRequestServiceImpl implements PullRequestService {
             if (user == null) {
                 continue;
             }
-            if (isOptedIn(user) && sendEmailToUser(user, issue, entity)) {
+            if (isOptedIn(user) && canBrowseIssue(issue, user) && sendEmailToUser(user, issue, entity)) {
                 queued++;
             }
         }
@@ -176,6 +177,10 @@ public class PullRequestServiceImpl implements PullRequestService {
     protected boolean isOptedIn(ApplicationUser user) {
         PropertySet userProperties = ComponentAccessor.getUserPropertyManager().getPropertySet(user);
         return userProperties.getBoolean(SettingsKeys.CODE_NOTIFICATIONS_USER_PROPERTY);
+    }
+
+    protected boolean canBrowseIssue(Issue issue, ApplicationUser user) {
+        return ComponentAccessor.getPermissionManager().hasPermission(ProjectPermissions.BROWSE_PROJECTS, issue, user);
     }
 
     protected boolean sendEmailToUser(ApplicationUser user, Issue issue, PullRequestEntity entity) {
