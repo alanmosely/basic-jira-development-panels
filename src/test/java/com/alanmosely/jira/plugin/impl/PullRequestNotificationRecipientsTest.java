@@ -23,7 +23,7 @@ import com.atlassian.sal.api.transaction.TransactionTemplate;
 
 /**
  * Pins WHO gets emailed by sendNotifications — the assignee/reporter/watchers
- * union, the per-user opt-in gate, and failure isolation — via the protected
+ * union, the per-user opt-in and issue permission gates, and failure isolation — via the protected
  * seams, without touching ComponentAccessor.
  */
 public class PullRequestNotificationRecipientsTest {
@@ -33,6 +33,7 @@ public class PullRequestNotificationRecipientsTest {
         private final Collection<ApplicationUser> watchers;
         private final Set<ApplicationUser> optedIn;
         private final Set<ApplicationUser> failing;
+        final Set<ApplicationUser> denied = new HashSet<>();
         final List<ApplicationUser> emailed = new ArrayList<>();
 
         RecordingService(Issue issue, Collection<ApplicationUser> watchers, Set<ApplicationUser> optedIn,
@@ -57,6 +58,12 @@ public class PullRequestNotificationRecipientsTest {
         @Override
         protected boolean isOptedIn(ApplicationUser user) {
             return optedIn.contains(user);
+        }
+
+        @Override
+        protected boolean canBrowseIssue(Issue issue, ApplicationUser user) {
+            assertEquals(this.issue, issue);
+            return !denied.contains(user);
         }
 
         @Override
@@ -141,6 +148,26 @@ public class PullRequestNotificationRecipientsTest {
         service.sendNotifications(entity());
 
         assertTrue(service.emailed.isEmpty());
+    }
+
+    @Test
+    public void optedInRecipientWhoLosesIssueAccessStopsReceivingMail() {
+        ApplicationUser assignee = user("assignee");
+        ApplicationUser reporter = user("reporter");
+        ApplicationUser watcher = user("watcher");
+        ApplicationUser otherWatcher = user("otherWatcher");
+        RecordingService service = new RecordingService(
+                issue(assignee, reporter), Arrays.asList(watcher, otherWatcher),
+                Set.of(assignee, reporter, watcher, otherWatcher), Collections.emptySet());
+
+        service.sendNotifications(entity());
+        assertEquals(4, service.emailed.size());
+
+        service.denied.addAll(Set.of(assignee, reporter, watcher));
+        service.emailed.clear();
+        service.sendNotifications(entity());
+
+        assertEquals(Collections.singletonList(otherWatcher), service.emailed);
     }
 
     @Test
