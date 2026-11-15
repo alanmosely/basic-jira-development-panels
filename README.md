@@ -8,6 +8,12 @@ If you can connect your source code management tool to Jira, you should totally 
 
 In the future, we may add a 'Builds' tab that will allow the creation and updating of Build entries.
 
+## Upgrading to 2.1.1
+
+Download `basic-jira-development-panels-2.1.1.jar` from the [v2.1.1 release](https://github.com/alanmosely/basic-jira-development-panels/releases/tag/v2.1.1) and upload it through Jira's **Manage apps** administration page. This build targets Jira Data Center **11.3.x** with **Java 21**. The notification permission change was verified on Jira 11.3.10. Building from source also requires JDK 21; run `atlas-mvn clean package` to produce the JAR under `target/`.
+
+Version 2.1.1 checks each opted-in recipient's issue-level Browse Projects permission before queuing a Code notification. A watcher, reporter or assignee who has lost access through project permissions or issue security no longer receives new notifications for that issue. Existing opt-in preferences and saved pull requests are retained. No database schema migration or reindex is required for this upgrade.
+
 ## Usage
 
 ### Viewing Pull Request information
@@ -18,7 +24,7 @@ When the plugin is installed and enabled and at least one Pull Request has been 
 
 ### Configuring email notifications
 
-No email notifications are sent when a Pull Request is created or updated by default. Users can individually opt into email notifications in their User Profiles by selecting 'Enable Code notifications'. When a user has this option enabled, if they are the issue assignee, reporter or a watcher when a Pull Request is created or updated, they will receive an email notification.
+No email notifications are sent when a Pull Request is created or updated by default. Users can individually opt into email notifications in their User Profiles by selecting 'Enable Code notifications'. When a user has this option enabled, if they are the issue assignee, reporter or a watcher when a Pull Request is created or updated, they will receive an email notification only if they can still browse that issue.
 
 ![jira-profile](https://github.com/user-attachments/assets/ebbac1f5-1ee9-4e66-9df0-2c52bbab0b23)
 
